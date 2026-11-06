@@ -291,6 +291,9 @@
   .needle.ok { background: var(--abalone); }
   .mic-verdict { font: 700 17px var(--f-body); }
   .mic-verdict.ok { color: var(--abalone); }
+  .lvl { display: flex; align-items: center; gap: 10px; font: 12px var(--f-mono); color: var(--muted); }
+  .lvl-bar { flex: 1; height: 6px; background: var(--wood-1); border-radius: 3px; overflow: hidden; }
+  .lvl-bar i { display: block; height: 100%; width: 0; background: var(--abalone); transition: width .08s linear; }
   /* CAGED */
   .shape-btns { display: flex; flex-wrap: wrap; gap: 6px; }
   .shape-btns button { background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 4px; padding: 7px 11px; cursor: pointer; font: 700 14px var(--f-body); display: inline-flex; align-items: center; gap: 8px; }
@@ -416,6 +419,7 @@
         <div class="mic-note"><b id="mic-name">–</b><span id="mic-hz"></span></div>
         <div class="meter" aria-hidden="true"><div class="meter-zone"></div><div class="meter-ticks"></div><div class="needle" id="mic-needle"></div></div>
         <div class="mic-verdict" id="mic-verdict">Waiting for a note…</div>
+        <div class="lvl" aria-hidden="true"><span>Mic level</span><div class="lvl-bar"><i id="mic-level"></i></div></div>
       </div>
     </div>
     <p class="tip">Play the reference, then your string. If you hear a wobble, turn the peg slowly until it slows down and goes away. If your string sounds lower, tighten; higher, loosen. A different tuning here only changes the reference notes; the rest of the page stays in standard.</p>
@@ -2034,25 +2038,34 @@ const micT = { on: false, stream: null, an: null, buf: null, raf: 0, hist: [], f
   if (!framed && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) document.getElementById("mic").hidden = false;
 })();
 function detectPitch(buf, sr) {
+  // McLeod normalized autocorrelation: works the same for quiet and loud input.
   const n = buf.length;
-  let rms = 0; for (let i = 0; i < n; i++) rms += buf[i] * buf[i];
-  rms = Math.sqrt(rms / n);
-  if (rms < 0.008) return -1;
+  let mean = 0; for (let i = 0; i < n; i++) mean += buf[i]; mean /= n;
+  const x = new Float32Array(n); let rms = 0;
+  for (let i = 0; i < n; i++) { x[i] = buf[i] - mean; rms += x[i] * x[i]; }
+  rms = Math.sqrt(rms / n); micT.level = rms;
+  if (rms < 0.0006) return -1;
   const minLag = Math.floor(sr / 1100), maxLag = Math.min(Math.floor(sr / 60), n >> 1);
-  const c = new Float32Array(maxLag + 2);
-  for (let lag = minLag - 1; lag <= maxLag + 1; lag++) {
-    let s = 0; for (let i = 0; i < n - lag; i++) s += buf[i] * buf[i + lag];
-    c[lag] = s / (n - lag);
+  const nsdf = new Float32Array(maxLag + 2);
+  for (let lag = 1; lag <= maxLag + 1; lag++) {
+    let r = 0, m = 0;
+    for (let i = 0; i < n - lag; i++) { r += x[i] * x[i + lag]; m += x[i] * x[i] + x[i + lag] * x[i + lag]; }
+    nsdf[lag] = m > 0 ? 2 * r / m : 0;
   }
-  let e0 = 0; for (let i = 0; i < n; i++) e0 += buf[i] * buf[i]; e0 /= n;
-  // first peak above 85% of the best peak avoids octave errors
-  let best = -1, bestV = 0;
-  for (let lag = minLag; lag <= maxLag; lag++) if (c[lag] > c[lag - 1] && c[lag] >= c[lag + 1] && c[lag] > bestV) { bestV = c[lag]; best = lag; }
-  if (best < 0 || bestV < e0 * 0.3) return -1;
-  for (let lag = minLag; lag <= maxLag; lag++) if (c[lag] > c[lag - 1] && c[lag] >= c[lag + 1] && c[lag] > bestV * 0.85) { best = lag; break; }
-  const a = c[best - 1], b = c[best], d = c[best + 1], den = a - 2 * b + d;
-  const shift = den ? 0.5 * (a - d) / den : 0;
-  return sr / (best + shift);
+  const peaks = []; let lag = 1;
+  while (lag <= maxLag && nsdf[lag] > 0) lag++;          // skip the first lobe
+  while (lag <= maxLag) {
+    while (lag <= maxLag && nsdf[lag] <= 0) lag++;
+    let best = -1, bv = 0;
+    while (lag <= maxLag && nsdf[lag] > 0) { if (lag >= minLag && nsdf[lag] > bv) { bv = nsdf[lag]; best = lag; } lag++; }
+    if (best > 0) peaks.push([best, bv]);
+  }
+  if (!peaks.length) return -1;
+  const top = Math.max(...peaks.map(q => q[1]));
+  if (top < 0.55) return -1;
+  const [tau] = peaks.find(q => q[1] >= top * 0.9);
+  const a = nsdf[tau - 1], b = nsdf[tau], d = nsdf[tau + 1], den = a - 2 * b + d;
+  return sr / (tau + (den ? 0.5 * (a - d) / den : 0));
 }
 function micLoop() {
   if (!micT.on) return;
@@ -2060,8 +2073,16 @@ function micLoop() {
   if (micT.frame++ % 2) return;
   micT.an.getFloatTimeDomainData(micT.buf);
   const f = detectPitch(micT.buf, micT.ctx.sampleRate);
-  if (f <= 0) { micT.hist = []; return; }
-  micT.hist.push(f); if (micT.hist.length > 5) micT.hist.shift();
+  const lvl = Math.min(100, Math.max(0, (Math.log10((micT.level || 1e-6) + 1e-6) + 3.6) / 3 * 100));
+  document.getElementById("mic-level").style.width = lvl + "%";
+  if (f <= 0) {
+    micT.hist = []; micT.quiet = (micT.quiet || 0) + 1;
+    if (micT.quiet > 30) document.getElementById("mic-verdict").textContent = micT.level < 0.0006 ? "Can't hear anything yet. Pluck a string closer to the mic." : "Hearing sound, but no clear note. Let one string ring.";
+    document.getElementById("mic-verdict").classList.remove("ok");
+    return;
+  }
+  micT.quiet = 0;
+  micT.hist.push(f); if (micT.hist.length > 7) micT.hist.shift();
   const fm = [...micT.hist].sort((x, y) => x - y)[micT.hist.length >> 1];
   const T = TUNINGS.find(t => t.id === state.tuning) || TUNINGS[0], names = T.flats ? FLAT_N : SHARP_N;
   const m = 69 + 12 * Math.log2(fm / 440);

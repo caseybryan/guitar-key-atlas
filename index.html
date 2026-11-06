@@ -346,16 +346,25 @@
     .prog-grid { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) { .nt circle { transition: none; } }
+
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .topbar > div { min-width: 0; }
+  .icon-link { flex: none; display: inline-flex; flex-direction: column; align-items: center; gap: 2px; color: var(--brass); text-decoration: none; border: 1px solid var(--line); background: var(--wood-1); border-radius: 10px; padding: 9px 10px 6px; font: 700 11px var(--f-body); letter-spacing: .04em; text-transform: uppercase; }
+  .icon-link:hover { border-color: var(--brass); color: var(--brass-hi); }
+  .icon-link:focus-visible { outline: 2px solid var(--abalone); outline-offset: 2px; }
 </style>
 
 <div class="wrap">
-  <header>
-    <h1>Guitar Key <span>Atlas</span></h1>
-    <p class="lede">Pick a key, or tap in a chord shape to find out what you are playing and what key it belongs to. Every scale lights up on the neck, the chords that live in the key are ready to strum, and the progressions play through so you can jam over them. Everything is in standard tuning.</p>
+  <header class="topbar">
+    <div>
+      <h1>Guitar Key <span>Atlas</span></h1>
+      <p class="lede">Pick a key, or tap in a chord shape to find out what you are playing and what key it belongs to. Every scale lights up on the neck, the chords that live in the key are ready to strum, and the progressions play through so you can jam over them. Everything is in standard tuning.</p>
+    </div>
+    <a class="icon-link" href="tuner.html" title="Tuner" aria-label="Open the tuner"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v7a5 5 0 0 0 10 0V2"/><path d="M12 14v7"/><circle cx="12" cy="21.5" r="1" fill="currentColor"/></svg>Tuner</a>
   </header>
 
   <nav class="nav" aria-label="Sections">
-    <a href="#tuner">Tuner</a><a href="#neck-sec">Scales</a><a href="#finder">Chord finder</a><a href="#caged">CAGED</a><a href="#chords-sec">Chords in key</a><a href="#voicings">Voicings</a><a href="#progs-sec">Progressions</a><a href="#drums">Drums</a><a href="#practice">Practice</a>
+    <a href="#neck-sec">Scales</a><a href="#finder">Chord finder</a><a href="#caged">CAGED</a><a href="#chords-sec">Chords in key</a><a href="#voicings">Voicings</a><a href="#progs-sec">Progressions</a><a href="#drums">Drums</a><a href="#practice">Practice</a>
   </nav>
 
   <section class="controls" aria-label="Key and sound">
@@ -391,38 +400,6 @@
         </div>
       </div>
     </div>
-  </section>
-
-  <section class="neck-panel anchor" id="tuner" aria-label="Tuner">
-    <div class="section-head">
-      <div>
-        <h2>Tuner</h2>
-        <p>Tap a string to hear its target note. It repeats until you tap it again, so you can tune while it plays.</p>
-      </div>
-      <div class="row" style="flex:1 1 280px;max-width:560px;min-width:0">
-        <div class="ctl"><span class="lbl">Tuning</span><div class="pick" id="tn-tunings"></div></div>
-      </div>
-    </div>
-    <div class="row" style="max-width:520px">
-      <div class="ctl">
-        <span class="lbl">Sound</span>
-        <div class="seg" role="group" aria-label="Tone type">
-          <button type="button" id="tn-pluck" aria-pressed="true">Plucked</button>
-          <button type="button" id="tn-steady" aria-pressed="false">Steady tone</button>
-        </div>
-      </div>
-    </div>
-    <div class="tuner-strings" id="tn-strings"></div>
-    <div class="mic" id="mic" hidden>
-      <div class="card-foot"><button type="button" class="play" id="mic-go">Listen with microphone</button><span class="tip" id="mic-status">Play one string at a time. The tuner picks the closest string in the tuning above.</span></div>
-      <div class="mic-read" id="mic-read" hidden>
-        <div class="mic-note"><b id="mic-name">–</b><span id="mic-hz"></span></div>
-        <div class="meter" aria-hidden="true"><div class="meter-zone"></div><div class="meter-ticks"></div><div class="needle" id="mic-needle"></div></div>
-        <div class="mic-verdict" id="mic-verdict">Waiting for a note…</div>
-        <div class="lvl" aria-hidden="true"><span>Mic level</span><div class="lvl-bar"><i id="mic-level"></i></div></div>
-      </div>
-    </div>
-    <p class="tip">Play the reference, then your string. If you hear a wobble, turn the peg slowly until it slows down and goes away. If your string sounds lower, tighten; higher, loosen. A different tuning here only changes the reference notes; the rest of the page stays in standard.</p>
   </section>
 
   <section class="neck-panel anchor" id="neck-sec" aria-label="Fretboard">
@@ -1647,7 +1624,7 @@ function boardSVG() {
   for (let n = 0; n <= FRETS; n++) h += `<text class="fnum" x="${noteX(n)}" y="200">${n === 0 ? "open" : n}</text>`;
   return h;
 }
-function stopEverything() { stopAll(); drumsStop(); tunerStop(); if (typeof micStop === "function") micStop(); }
+function stopEverything() { stopAll(); drumsStop(); }
 
 // ---------- CAGED ---------------------------------------------------------
 const CAGED_T = {
@@ -1973,163 +1950,8 @@ function setTempo(v) {
 document.getElementById("dr-tempo").addEventListener("input", e => setTempo(+e.target.value));
 document.getElementById("tempo").addEventListener("input", e => setTempo(+e.target.value));
 
-// ---------- Tuner ---------------------------------------------------------
-const TUNINGS = [
-  { id:"std", name:"Standard", m:[40,45,50,55,59,64] },
-  { id:"dropd", name:"Drop D", m:[38,45,50,55,59,64] },
-  { id:"half", name:"Half step down", m:[39,44,49,54,58,63], flats:true },
-  { id:"openg", name:"Open G", m:[38,43,50,55,59,62] },
-  { id:"opend", name:"Open D", m:[38,45,50,54,57,62] },
-  { id:"dadgad", name:"DADGAD", m:[38,45,50,55,57,62] },
-];
-const SHARP_N = ["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"], FLAT_N = ["C","D♭","D","E♭","E","F","G♭","G","A♭","A","B♭","B"];
-state.tuning = state.tuning || "std"; state.tnMode = state.tnMode || "pluck";
-const tuner = { s: -1, timer: null, nodes: [] };
-function tunerStop() {
-  clearTimeout(tuner.timer); tuner.timer = null;
-  if (actx) tuner.nodes.forEach(n => { try { n.g.gain.setTargetAtTime(0, actx.currentTime, 0.05); n.src.stop(actx.currentTime + 0.3); } catch (e) {} });
-  tuner.nodes = []; tuner.s = -1;
-  document.querySelectorAll("#tn-strings button.on").forEach(b => b.classList.remove("on"));
-}
-function tunerPlay(s) {
-  tunerStop(); ensureAudio(); tuner.s = s;
-  const T = TUNINGS.find(t => t.id === state.tuning), midi = T.m[s];
-  document.querySelector(`#tn-strings [data-ts="${s}"]`).classList.add("on");
-  if (state.tnMode === "steady") {
-    const f = 440 * Math.pow(2, (midi - 69) / 12), g = actx.createGain(), lp = actx.createBiquadFilter();
-    lp.type = "lowpass"; lp.frequency.value = 1400;
-    g.gain.setValueAtTime(0.0001, actx.currentTime); g.gain.exponentialRampToValueAtTime(0.16, actx.currentTime + 0.15);
-    [["sawtooth", 1, 0.5], ["sine", 1, 1], ["sine", 2, 0.25]].forEach(([type, mult, amp]) => {
-      const o = actx.createOscillator(), og = actx.createGain(); o.type = type; o.frequency.value = f * mult; og.gain.value = amp;
-      o.connect(og); og.connect(lp); o.start(); tuner.nodes.push({ src: o, g });
-    });
-    lp.connect(g); g.connect(out);
-  } else {
-    const loop = () => {
-      const { buf, rate } = ksBuffer(midi);
-      const src = actx.createBufferSource(); src.buffer = buf; src.playbackRate.value = rate;
-      const g = actx.createGain(); g.gain.value = 0.9; src.connect(g); g.connect(out); src.start();
-      tuner.nodes.push({ src, g }); if (tuner.nodes.length > 3) tuner.nodes.shift();
-      tuner.timer = setTimeout(loop, 2200);
-    };
-    loop();
-  }
-}
-function renderTuner() {
-  const T = TUNINGS.find(t => t.id === state.tuning) || TUNINGS[0], names = T.flats ? FLAT_N : SHARP_N;
-  document.getElementById("tn-tunings").innerHTML = TUNINGS.map(t => `<button type="button" data-tt="${t.id}" aria-pressed="${t.id === T.id}">${t.name}</button>`).join("");
-  document.getElementById("tn-pluck").setAttribute("aria-pressed", state.tnMode === "pluck");
-  document.getElementById("tn-steady").setAttribute("aria-pressed", state.tnMode === "steady");
-  document.getElementById("tn-strings").innerHTML = T.m.map((m, s) =>
-    `<button type="button" data-ts="${s}" class="${tuner.s === s ? "on" : ""}"><b>${names[m % 12]}</b><span>${6 - s}${["th","th","th","rd","nd","st"][s]} string · ${names[m % 12]}${Math.floor(m / 12) - 1}</span></button>`).join("");
-}
-document.getElementById("tuner").addEventListener("click", e => {
-  const b = e.target.closest("button"); if (!b) return;
-  if (b.dataset.ts !== undefined) { const s = +b.dataset.ts; if (tuner.s === s) tunerStop(); else tunerPlay(s); return; }
-  if (b.dataset.tt !== undefined) { tunerStop(); state.tuning = b.dataset.tt; save(); renderTuner(); return; }
-  if (b.id === "tn-pluck" || b.id === "tn-steady") { const s = tuner.s; tunerStop(); state.tnMode = b.id === "tn-pluck" ? "pluck" : "steady"; save(); renderTuner(); if (s >= 0) tunerPlay(s); }
-});
-document.addEventListener("keydown", e => { if (e.key === "Escape") { drumsStop(); tunerStop(); } });
-
-// ---------- Microphone tuner (works where the page may use the mic) ------
-const micT = { on: false, stream: null, an: null, buf: null, raf: 0, hist: [], frame: 0 };
-(function initMic() {
-  const framed = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
-  if (!framed && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) document.getElementById("mic").hidden = false;
-})();
-function detectPitch(buf, sr) {
-  // McLeod normalized autocorrelation: works the same for quiet and loud input.
-  const n = buf.length;
-  let mean = 0; for (let i = 0; i < n; i++) mean += buf[i]; mean /= n;
-  const x = new Float32Array(n); let rms = 0;
-  for (let i = 0; i < n; i++) { x[i] = buf[i] - mean; rms += x[i] * x[i]; }
-  rms = Math.sqrt(rms / n); micT.level = rms;
-  if (rms < 0.0006) return -1;
-  const minLag = Math.floor(sr / 1100), maxLag = Math.min(Math.floor(sr / 60), n >> 1);
-  const nsdf = new Float32Array(maxLag + 2);
-  for (let lag = 1; lag <= maxLag + 1; lag++) {
-    let r = 0, m = 0;
-    for (let i = 0; i < n - lag; i++) { r += x[i] * x[i + lag]; m += x[i] * x[i] + x[i + lag] * x[i + lag]; }
-    nsdf[lag] = m > 0 ? 2 * r / m : 0;
-  }
-  const peaks = []; let lag = 1;
-  while (lag <= maxLag && nsdf[lag] > 0) lag++;          // skip the first lobe
-  while (lag <= maxLag) {
-    while (lag <= maxLag && nsdf[lag] <= 0) lag++;
-    let best = -1, bv = 0;
-    while (lag <= maxLag && nsdf[lag] > 0) { if (lag >= minLag && nsdf[lag] > bv) { bv = nsdf[lag]; best = lag; } lag++; }
-    if (best > 0) peaks.push([best, bv]);
-  }
-  if (!peaks.length) return -1;
-  const top = Math.max(...peaks.map(q => q[1]));
-  if (top < 0.55) return -1;
-  const [tau] = peaks.find(q => q[1] >= top * 0.9);
-  const a = nsdf[tau - 1], b = nsdf[tau], d = nsdf[tau + 1], den = a - 2 * b + d;
-  return sr / (tau + (den ? 0.5 * (a - d) / den : 0));
-}
-function micLoop() {
-  if (!micT.on) return;
-  micT.raf = requestAnimationFrame(micLoop);
-  if (micT.frame++ % 2) return;
-  micT.an.getFloatTimeDomainData(micT.buf);
-  const f = detectPitch(micT.buf, micT.ctx.sampleRate);
-  const lvl = Math.min(100, Math.max(0, (Math.log10((micT.level || 1e-6) + 1e-6) + 3.6) / 3 * 100));
-  document.getElementById("mic-level").style.width = lvl + "%";
-  if (f <= 0) {
-    micT.hist = []; micT.quiet = (micT.quiet || 0) + 1;
-    if (micT.quiet > 30) document.getElementById("mic-verdict").textContent = micT.level < 0.0006 ? "Can't hear anything yet. Pluck a string closer to the mic." : "Hearing sound, but no clear note. Let one string ring.";
-    document.getElementById("mic-verdict").classList.remove("ok");
-    return;
-  }
-  micT.quiet = 0;
-  micT.hist.push(f); if (micT.hist.length > 7) micT.hist.shift();
-  const fm = [...micT.hist].sort((x, y) => x - y)[micT.hist.length >> 1];
-  const T = TUNINGS.find(t => t.id === state.tuning) || TUNINGS[0], names = T.flats ? FLAT_N : SHARP_N;
-  const m = 69 + 12 * Math.log2(fm / 440);
-  let s = 0; T.m.forEach((tm, i) => { if (Math.abs(tm - m) < Math.abs(T.m[s] - m)) s = i; });
-  const cents = Math.round((m - T.m[s]) * 100);
-  document.getElementById("mic-name").textContent = names[T.m[s] % 12];
-  document.getElementById("mic-hz").textContent = `${fm.toFixed(1)} Hz · ${6 - s}${["th","th","th","rd","nd","st"][s]} string · ${cents > 0 ? "+" : ""}${cents} cents`;
-  const needle = document.getElementById("mic-needle"), v = document.getElementById("mic-verdict");
-  const ok = Math.abs(cents) <= 4;
-  needle.style.left = (50 + Math.max(-50, Math.min(50, cents))) + "%";
-  needle.classList.toggle("ok", ok);
-  v.classList.toggle("ok", ok);
-  v.textContent = ok ? "In tune" : cents < 0 ? (cents < -50 ? "Way low: tighten" : "A little low: tighten") : (cents > 50 ? "Way high: loosen" : "A little high: loosen");
-  document.querySelectorAll("#tn-strings button").forEach((b, i) => b.classList.toggle("on", i === s));
-}
-async function micStart() {
-  const st = document.getElementById("mic-status");
-  try {
-    tunerStop();
-    micT.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
-  } catch (e) {
-    st.textContent = "The microphone is blocked. Allow it in your browser's site settings, or tune by ear with the string buttons above.";
-    return;
-  }
-  micT.ctx = micT.ctx || new (window.AudioContext || window.webkitAudioContext)();
-  if (micT.ctx.state === "suspended") await micT.ctx.resume();
-  const src = micT.ctx.createMediaStreamSource(micT.stream);
-  micT.an = micT.ctx.createAnalyser(); micT.an.fftSize = 4096; src.connect(micT.an);
-  micT.buf = new Float32Array(micT.an.fftSize); micT.on = true; micT.hist = [];
-  document.getElementById("mic-read").hidden = false;
-  document.getElementById("mic-go").textContent = "Stop listening";
-  st.textContent = "Listening. Play one string at a time and let it ring.";
-  micLoop();
-}
-function micStop() {
-  if (!micT.on) return;
-  micT.on = false; cancelAnimationFrame(micT.raf);
-  micT.stream.getTracks().forEach(t => t.stop());
-  document.getElementById("mic-go").textContent = "Listen with microphone";
-  document.getElementById("mic-status").textContent = "Play one string at a time. The tuner picks the closest string in the tuning above.";
-  document.querySelectorAll("#tn-strings button.on").forEach(b => b.classList.remove("on"));
-}
-document.getElementById("mic-go").addEventListener("click", () => micT.on ? micStop() : micStart());
-document.getElementById("tn-strings").addEventListener("click", () => micStop(), true);
 
 applySkin();
-renderTuner();
 renderDrums();
 renderAll();
 renderFinder();

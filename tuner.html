@@ -1,0 +1,640 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Guitar Tuner</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  /* Layout: one column. Key + sound controls, chord finder, the neck, scales, chords, progressions, practice.
+     Five color sets picked with data-skin on the root; Midnight is the default. Board colors are their own tokens. */
+  :root {
+    --wood-0: #0d111d; --wood-1: #151a2b; --wood-2: #1d2439; --wood-3: #29324d; --line: #3b4668;
+    --bone: #eef1fa; --muted: #a1a9c4;
+    --brass: #ffb547; --brass-hi: #ffd38a;
+    --abalone: #5fe0c4; --abalone-deep: #2f9c86;
+    --warm: #ff8a7a;
+    --board: #1b2135; --fretc: #8e97b3; --strc: #d5d9e6; --inlay: #3a4468; --nut: #eef1fa;
+    --dot: #eef1fa; --dot-ink: #0d111d; --dot-dim: #262e48; --dot-dim-line: #46527a; --dot-dim-ink: #a1a9c4; --cdline: #5d6889;
+    --f-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+    --f-body: "Atkinson Hyperlegible", system-ui, sans-serif;
+    --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    color-scheme: dark;
+  }
+  :root[data-skin="seafoam"] {
+    --wood-0: #0b1918; --wood-1: #112422; --wood-2: #18302d; --wood-3: #22403c; --line: #335a54;
+    --bone: #ecfaf5; --muted: #93bdb3; --brass: #ff8a65; --brass-hi: #ffb59a; --abalone: #ffd166; --abalone-deep: #c99a2e; --warm: #f2a2c0;
+    --board: #10201e; --fretc: #9fb9b2; --strc: #d8e8e3; --inlay: #2c4a45; --nut: #ecfaf5;
+    --dot: #ecfaf5; --dot-ink: #0b1918; --dot-dim: #1d3633; --dot-dim-line: #3b625b; --dot-dim-ink: #93bdb3; --cdline: #4f7a72;
+    color-scheme: dark;
+  }
+  :root[data-skin="arctic"] {
+    --wood-0: #f2f4f8; --wood-1: #ffffff; --wood-2: #eaeef4; --wood-3: #d9dfe9; --line: #bcc6d6;
+    --bone: #172033; --muted: #5a657c; --brass: #d9480f; --brass-hi: #b83d0c; --abalone: #0f9d8a; --abalone-deep: #0b7568; --warm: #b4235a;
+    --board: #242a36; --fretc: #9aa4b8; --strc: #e3e7ef; --inlay: #3c4558; --nut: #f2f4f8;
+    --dot: #f2f4f8; --dot-ink: #172033; --dot-dim: #333b4c; --dot-dim-line: #556078; --dot-dim-ink: #b5bdcc; --cdline: #9aa4b8;
+    color-scheme: light;
+  }
+  :root[data-skin="ebony"] {
+    --wood-0: #0a0a0b; --wood-1: #141416; --wood-2: #1c1c1f; --wood-3: #28282d; --line: #3c3c44;
+    --bone: #f4f4f5; --muted: #a1a1aa; --brass: #ff4d5e; --brass-hi: #ff8a95; --abalone: #5cc8ff; --abalone-deep: #2b8fc4; --warm: #ffb547;
+    --board: #111113; --fretc: #b9b9c2; --strc: #e4e4e7; --inlay: #34343a; --nut: #f4f4f5;
+    --dot: #f4f4f5; --dot-ink: #0a0a0b; --dot-dim: #222226; --dot-dim-line: #45454e; --dot-dim-ink: #a1a1aa; --cdline: #55555e;
+    color-scheme: dark;
+  }
+  :root[data-skin="rosewood"] {
+    --wood-0: #140e0c; --wood-1: #1f1512; --wood-2: #2b1e19; --wood-3: #3b2a22; --line: #56402f;
+    --bone: #f1e6d3; --muted: #b8a48f; --brass: #e0ad55; --brass-hi: #f3cd85; --abalone: #7fd1c1; --abalone-deep: #3e8f83; --warm: #e0876a;
+    --board: #2a1a14; --fretc: #a8916b; --strc: #cdbb9c; --inlay: #6a5644; --nut: #f1e6d3;
+    --dot: #f1e6d3; --dot-ink: #140e0c; --dot-dim: #2b1e19; --dot-dim-line: #56402f; --dot-dim-ink: #b8a48f; --cdline: #8f7a60;
+    color-scheme: dark;
+  }
+  .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+  .swatches button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; padding: 0; }
+  .swatches button[aria-pressed=true] { border-color: var(--bone); box-shadow: 0 0 0 2px var(--wood-1), 0 0 0 4px var(--brass); }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--wood-0); color: var(--bone); font: 16px/1.5 var(--f-body);
+    padding-block: 28px 64px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 36px; }
+  .wrap > *, .section > * { min-width: 0; }
+  .seg button { min-width: 0; }
+  h1 { font: 800 clamp(34px, 6vw, 56px)/0.95 var(--f-display); margin: 0; letter-spacing: .01em; text-transform: uppercase; text-wrap: balance; }
+  h1 span { color: var(--brass); }
+  .lede { margin: 10px 0 0; max-width: 64ch; color: var(--muted); }
+  h2 { font: 800 26px/1 var(--f-display); text-transform: uppercase; letter-spacing: .03em; margin: 0; }
+  h2 em { font-style: normal; color: var(--brass); }
+  h3.group { font: 600 14px/1.2 var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 6px 0 0; }
+  .section { display: grid; gap: 14px; }
+  .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px 24px; }
+  .section-head > * { min-width: 0; }
+  .section-head p { margin: 6px 0 0; color: var(--muted); max-width: 64ch; font-size: 15px; }
+  button { font-family: var(--f-body); color: inherit; }
+  button:focus-visible, .card:focus-visible, input:focus-visible { outline: 2px solid var(--abalone); outline-offset: 2px; }
+
+  /* Controls */
+  .controls { display: grid; gap: 18px; background: var(--wood-1); border: 1px solid var(--wood-3); border-radius: 6px; padding: 18px; }
+  .keys { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; }
+  .keys button {
+    background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 4px; padding: 10px 2px; cursor: pointer;
+    font: 800 20px/1 var(--f-display); letter-spacing: .02em;
+  }
+  .keys button small { display: block; font: 400 11px/1.2 var(--f-mono); color: var(--muted); margin-top: 3px; min-height: 13px; }
+  .keys button:hover { border-color: var(--line); }
+  .keys button[aria-pressed=true] { background: var(--brass); color: var(--wood-0); border-color: var(--brass); }
+  .keys button[aria-pressed=true] small { color: var(--wood-2); }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 22px; }
+  .ctl { display: grid; gap: 6px; min-width: 0; }
+  .ctl .lbl, .ctl label { font-size: 13px; color: var(--muted); letter-spacing: .03em; display: flex; justify-content: space-between; gap: 8px; }
+  .ctl output { font-family: var(--f-mono); color: var(--bone); font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--brass); }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .seg button { flex: 1; background: transparent; color: var(--muted); border: 0; padding: 8px 6px; font: 700 13px var(--f-body); cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--wood-3); }
+  .seg button[aria-pressed=true] { background: var(--bone); color: var(--wood-0); }
+
+  /* Neck */
+  .neck-panel { background: var(--wood-1); border: 1px solid var(--wood-3); border-radius: 6px; padding: 18px; display: grid; gap: 14px; }
+  .neck-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px 20px; }
+  .neck-title { min-width: 0; }
+  .neck-title .nm { font: 800 30px/1 var(--f-display); text-transform: uppercase; letter-spacing: .02em; }
+  .neck-title .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font: 600 14px/1 var(--f-mono); padding: 7px 9px; border-radius: 3px; background: var(--wood-2); border: 1px solid var(--wood-3); display: grid; gap: 3px; justify-items: center; min-width: 40px; }
+  .chip i { font-style: normal; font-weight: 400; font-size: 10px; color: var(--muted); }
+  .chip.root { border-color: var(--brass); color: var(--brass-hi); }
+  .chip.on { background: var(--abalone); color: var(--wood-0); border-color: var(--abalone); }
+  .chip.on i { color: var(--wood-1); }
+  .neck-scroll { overflow-x: auto; margin: 0 -4px; padding: 0 4px; }
+  .neck-scroll svg { display: block; width: 100%; min-width: 820px; height: auto; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend b { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+  /* fretboard svg classes */
+  .board { fill: var(--board); }
+  .fret { stroke: var(--fretc); stroke-width: 2; }
+  .nut { fill: var(--nut); }
+  .str { stroke: var(--strc); }
+  .inlay { fill: var(--inlay); }
+  .fnum { fill: var(--muted); font: 11px var(--f-mono); text-anchor: middle; }
+  .nt circle { fill: var(--dot-dim); stroke: var(--dot-dim-line); stroke-width: 1.5; transition: fill .35s, stroke .35s; }
+  .nt text { fill: var(--dot-dim-ink); font: 600 10px var(--f-mono); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  .nt.box circle { fill: var(--dot); stroke: var(--dot); }
+  .nt.box text { fill: var(--dot-ink); }
+  .nt.root circle { stroke: var(--brass); stroke-width: 2.5; }
+  .nt.root text { fill: var(--brass); }
+  .nt.root.box circle { fill: var(--brass); stroke: var(--brass); }
+  .nt.root.box text { fill: var(--dot-ink); }
+  .nt.on circle { fill: var(--abalone); stroke: var(--abalone); transition: none; }
+  .nt.on text { fill: var(--dot-ink); }
+  .nt { cursor: pointer; }
+
+  /* Buttons */
+  .play { background: var(--brass); color: var(--wood-0); border: 0; padding: 8px 16px; border-radius: 4px; font: 700 14px var(--f-body); cursor: pointer; white-space: nowrap; }
+  .play:hover { background: var(--brass-hi); }
+  .play.playing { background: var(--abalone); }
+  .ghost { background: transparent; color: var(--bone); border: 1px solid var(--line); padding: 7px 12px; border-radius: 4px; font: 700 13px var(--f-body); cursor: pointer; white-space: nowrap; }
+  .ghost:hover { border-color: var(--brass); }
+
+  /* Scale cards */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .card { background: var(--wood-1); border: 1px solid var(--wood-3); border-radius: 6px; padding: 14px; display: grid; gap: 10px; align-content: start; min-width: 0; cursor: pointer; }
+  .card:hover { border-color: var(--line); }
+  .card[aria-current=true] { border-color: var(--brass); background: var(--wood-2); }
+  .card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .card h4 { margin: 0; font: 700 17px/1.25 var(--f-body); }
+  .mood { margin: 0; color: var(--muted); font-size: 14px; }
+  .formula { font: 12px/1.5 var(--f-mono); color: var(--muted); word-spacing: 3px; }
+  .notes { font: 600 14px/1.4 var(--f-mono); word-spacing: 4px; }
+  .rel { font-size: 13px; color: var(--abalone); }
+  .tag { font: 700 10px/1 var(--f-body); letter-spacing: .08em; text-transform: uppercase; padding: 4px 6px; border-radius: 3px; white-space: nowrap; border: 1px solid var(--line); color: var(--muted); }
+  .tag.brass { border-color: var(--brass); color: var(--brass-hi); }
+  .tag.warm { border-color: var(--warm); color: var(--warm); }
+  .card-foot { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  /* Chords */
+  .chords { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }
+  .chord {
+    background: var(--wood-1); border: 1px solid var(--wood-3); border-radius: 6px; padding: 10px 6px 8px; cursor: pointer;
+    display: grid; justify-items: center; gap: 2px; min-width: 0;
+  }
+  .chord:hover { border-color: var(--line); }
+  .chord.on { border-color: var(--abalone); background: var(--wood-2); }
+  .chord .rn { font: 600 13px var(--f-mono); color: var(--muted); }
+  .chord .cn { font: 800 22px/1.1 var(--f-display); letter-spacing: .02em; }
+  .chord svg { width: 100%; max-width: 86px; height: auto; }
+
+  /* Progressions */
+  .prog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .prog { background: var(--wood-1); border: 1px solid var(--wood-3); border-radius: 6px; padding: 14px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+  .prog.playing { border-color: var(--abalone); }
+  .roman { font: 600 14px var(--f-mono); color: var(--brass-hi); word-spacing: 2px; }
+  .pchords { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pc { width: 66px; background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 4px; padding: 5px 2px 2px; display: grid; justify-items: center; cursor: pointer; }
+  .pc b { font: 800 15px/1.1 var(--f-display); letter-spacing: .02em; white-space: nowrap; }
+  .pc svg { width: 58px; height: auto; }
+  .pc.on { border-color: var(--abalone); background: var(--wood-3); }
+  .pc.on b { color: var(--abalone); }
+
+  /* chord diagram svg */
+  .cd-line { stroke: var(--cdline); stroke-width: 1; }
+  .cd-nut { stroke: var(--bone); stroke-width: 3; }
+  .cd-dot { fill: var(--bone); }
+  .cd-dot.r { fill: var(--brass); }
+  .cd-open { fill: none; stroke: var(--bone); stroke-width: 1.2; }
+  .cd-open.r { stroke: var(--brass); }
+  .cd-x { fill: var(--muted); font: 9px var(--f-mono); text-anchor: middle; dominant-baseline: central; }
+  .cd-base { fill: var(--muted); font: 9px var(--f-mono); text-anchor: end; dominant-baseline: central; }
+  .cd-barre { fill: var(--bone); opacity: .9; }
+
+  .footer { color: var(--muted); font-size: 14px; border-top: 1px solid var(--wood-3); padding-top: 16px; max-width: 72ch; display: grid; gap: 6px; }
+  .footer p { margin: 0; }
+  kbd { font-family: var(--f-mono); font-size: 12px; border: 1px solid var(--line); padding: 1px 6px; border-radius: 3px; color: var(--bone); }
+
+  /* Chord finder */
+  .finder { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px 28px; }
+  .found-name { font: 800 clamp(40px, 7vw, 64px)/0.95 var(--f-display); letter-spacing: .01em; color: var(--brass-hi); overflow-wrap: anywhere; }
+  .found-alt { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  .found-alt b { color: var(--bone); font-weight: 700; }
+  .stack { display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .mini-h { font: 700 12px/1.2 var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  .keychips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .keychip { background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 4px; padding: 6px 9px; font: 13px var(--f-body); cursor: pointer; }
+  .keychip b { font: 600 13px var(--f-mono); color: var(--brass-hi); margin-right: 4px; }
+  .keychip:hover { border-color: var(--brass); }
+  .mine { display: flex; flex-wrap: wrap; gap: 6px; min-height: 40px; align-items: center; }
+  .mine .pc { position: relative; }
+  .mine .pc .rm { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--line); background: var(--wood-1); color: var(--muted); font: 12px/1 var(--f-body); cursor: pointer; padding: 0; }
+  .mine .pc .rm:hover { color: var(--bone); border-color: var(--warm); }
+  .empty { color: var(--muted); font-size: 14px; }
+  .keyguess { background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 6px; padding: 12px 14px; display: grid; gap: 6px; }
+  .keyguess.top { border-color: var(--brass); }
+  .keyguess .kn { font: 800 26px/1 var(--f-display); text-transform: uppercase; letter-spacing: .02em; }
+  .keyguess .why { color: var(--muted); font-size: 13px; }
+  .keyguess .roman { font-size: 13px; }
+  .keyguess.small .kn { font-size: 19px; }
+  .cell rect { fill: transparent; cursor: pointer; }
+  .cell .ghost { fill: var(--dot); opacity: 0; transition: opacity .12s; pointer-events: none; }
+  .cell:hover .ghost { opacity: .28; }
+  .str.dead { opacity: .3; }
+  .fd circle { fill: var(--dot); }
+  .fd text { fill: var(--dot-ink); font: 700 10px var(--f-mono); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  .fd.r circle { fill: var(--brass); }
+  .fd.open circle { fill: var(--board); stroke: var(--dot); stroke-width: 2; }
+  .fd.open text { fill: var(--dot); }
+  .fd.open.r circle { stroke: var(--brass); }
+  .fd.open.r text { fill: var(--brass); }
+  .fd.on circle { fill: var(--abalone); stroke: var(--abalone); }
+  .fd.on text { fill: var(--dot-ink); }
+  .fd-x { fill: var(--muted); font: 700 15px var(--f-mono); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  @media (max-width: 760px) { .finder { grid-template-columns: minmax(0, 1fr); } }
+  #stop-fab {
+    position: fixed; z-index: 20; right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    background: var(--abalone); color: var(--wood-0); border: 0; border-radius: 999px; padding: 12px 22px;
+    font: 700 16px var(--f-body); cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,.35);
+  }
+  #stop-fab::before { content: ""; display: inline-block; width: 10px; height: 10px; background: currentColor; margin-right: 8px; border-radius: 1px; }
+  /* Practice */
+  .ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 12px; }
+  .ex { background: var(--wood-1); border: 1px solid var(--wood-3); border-radius: 6px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+  .ex.wide { grid-column: 1 / -1; }
+  .ex ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 15px; }
+  .ex ol li::marker { color: var(--brass); font-family: var(--f-mono); font-size: 13px; }
+  .ex .now { font: 800 22px/1 var(--f-display); color: var(--abalone); min-height: 22px; letter-spacing: .02em; }
+  .counter { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+  .counter .big { font: 800 56px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+  .counter .sm { color: var(--muted); font: 14px var(--f-mono); font-variant-numeric: tabular-nums; }
+  .pairs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pairs button { background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 4px; padding: 6px 10px; cursor: pointer; font: 700 14px var(--f-body); }
+  .pairs button[aria-pressed=true] { border-color: var(--brass); color: var(--brass-hi); }
+  .answers { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+  .answers button { background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 4px; padding: 10px 2px; cursor: pointer; font: 600 14px var(--f-mono); }
+  .answers button:hover { border-color: var(--line); }
+  .answers button.right { background: var(--abalone); color: var(--wood-0); border-color: var(--abalone); }
+  .answers button.wrong { border-color: var(--warm); color: var(--warm); }
+  .msg { font-size: 15px; min-height: 24px; }
+  .circle { display: flex; flex-wrap: wrap; gap: 4px; }
+  .circle button { background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 4px; min-width: 40px; padding: 6px 6px; cursor: pointer; font: 800 17px/1 var(--f-display); }
+  .circle button[aria-pressed=true] { background: var(--brass); color: var(--wood-0); border-color: var(--brass); }
+  @media (max-width: 420px) { .answers { grid-template-columns: repeat(4, minmax(0, 1fr)); } .ex-grid { grid-template-columns: 1fr; } }
+  .neck-panel { grid-template-columns: minmax(0, 1fr); }
+  .neck-panel > * { min-width: 0; }
+  /* Nav */
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 16; background: var(--wood-0); }
+  .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 15; background: var(--wood-0); padding-block: 8px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--wood-3); }
+  .nav a { flex: none; color: var(--muted); text-decoration: none; font: 700 13px var(--f-body); padding: 7px 11px; border: 1px solid var(--wood-3); border-radius: 999px; background: var(--wood-1); }
+  .nav a:hover { color: var(--bone); border-color: var(--line); }
+  [id].anchor { scroll-margin-top: 64px; }
+
+  /* Tuner */
+  .tuner-strings { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+  .tuner-strings button { background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 6px; padding: 14px 4px 10px; cursor: pointer; display: grid; gap: 4px; justify-items: center; }
+  .tuner-strings button b { font: 800 34px/1 var(--f-display); }
+  .tuner-strings button span { font: 12px var(--f-mono); color: var(--muted); }
+  .tuner-strings button:hover { border-color: var(--line); }
+  .tuner-strings button.on { background: var(--abalone); border-color: var(--abalone); color: var(--wood-0); }
+  .tuner-strings button.on span { color: var(--wood-1); }
+  .tip { color: var(--muted); font-size: 14px; margin: 0; max-width: 72ch; }
+
+  .mic { display: grid; gap: 14px; }
+  .mic-read { display: grid; gap: 10px; background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 6px; padding: 16px; }
+  .mic-note { display: flex; align-items: baseline; gap: 14px; }
+  .mic-note b { font: 800 64px/1 var(--f-display); min-width: 2ch; }
+  .mic-note span { font: 14px var(--f-mono); color: var(--muted); }
+  .meter { position: relative; height: 34px; border-radius: 4px; background: var(--wood-1); border: 1px solid var(--wood-3); overflow: hidden; }
+  .meter-zone { position: absolute; left: 45%; width: 10%; top: 0; bottom: 0; background: var(--abalone); opacity: .25; }
+  .meter-ticks { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 10%); opacity: .7; }
+  .needle { position: absolute; top: 0; bottom: 0; width: 4px; margin-left: -2px; left: 50%; background: var(--brass); transition: left .08s linear; border-radius: 2px; }
+  .needle.ok { background: var(--abalone); }
+  .mic-verdict { font: 700 17px var(--f-body); }
+  .mic-verdict.ok { color: var(--abalone); }
+  .lvl { display: flex; align-items: center; gap: 10px; font: 12px var(--f-mono); color: var(--muted); }
+  .lvl-bar { flex: 1; height: 6px; background: var(--wood-1); border-radius: 3px; overflow: hidden; }
+  .lvl-bar i { display: block; height: 100%; width: 0; background: var(--abalone); transition: width .08s linear; }
+  /* CAGED */
+  .shape-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+  .shape-btns button { background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 4px; padding: 7px 11px; cursor: pointer; font: 700 14px var(--f-body); display: inline-flex; align-items: center; gap: 8px; }
+  .shape-btns button i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .shape-btns button small { font: 12px var(--f-mono); color: var(--muted); }
+  .shape-btns button[aria-pressed=true] { border-color: var(--bone); background: var(--wood-3); }
+  .pick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pick button { background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 4px; padding: 6px 10px; cursor: pointer; font: 700 14px var(--f-body); }
+  .pick button small { font: 11px var(--f-mono); color: var(--muted); margin-left: 4px; }
+  .pick button[aria-pressed=true] { background: var(--brass); color: var(--wood-0); border-color: var(--brass); }
+  .pick button[aria-pressed=true] small { color: var(--wood-2); }
+  .pick button:disabled { opacity: .4; cursor: default; }
+  .caged-foot { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; }
+  .caged-foot .cd { width: 96px; flex: none; }
+  .caged-foot .cd svg { width: 100%; height: auto; }
+  .nt.sc circle { fill: transparent; stroke: var(--dot); stroke-dasharray: 2 2; }
+  .nt.sc text { fill: var(--dot); font-size: 9px; }
+  .region { pointer-events: none; }
+
+  /* Voicings */
+  .v-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 10px; }
+  .vcard { background: var(--wood-1); border: 1px solid var(--wood-3); border-radius: 6px; padding: 10px 8px; display: grid; gap: 4px; justify-items: center; min-width: 0; cursor: pointer; }
+  .vcard:hover { border-color: var(--line); }
+  .vcard.on { border-color: var(--abalone); }
+  .vcard b { font: 800 19px/1.1 var(--f-display); letter-spacing: .02em; }
+  .vcard .pos { font: 12px var(--f-mono); color: var(--muted); }
+  .vcard svg { width: 100%; max-width: 96px; height: auto; }
+  .vcard .ghost { font-size: 12px; padding: 4px 8px; }
+
+  /* Drums */
+  .pattern { overflow-x: auto; }
+  .pattern table { border-collapse: separate; border-spacing: 3px; }
+  .pattern th { font: 600 11px var(--f-mono); color: var(--muted); text-align: right; padding-right: 6px; white-space: nowrap; }
+  .pattern td { width: 24px; height: 22px; border-radius: 3px; background: var(--wood-2); border: 1px solid var(--wood-3); }
+  .pattern td.x { background: var(--bone); border-color: var(--bone); }
+  .pattern td.beat { border-color: var(--line); }
+  .pattern td.now { box-shadow: 0 0 0 2px var(--abalone); }
+  .pattern td.x.now { background: var(--abalone); border-color: var(--abalone); }
+  .beats { display: flex; gap: 8px; }
+  .beats i { width: 18px; height: 18px; border-radius: 50%; background: var(--wood-3); display: inline-block; }
+  .beats i.now { background: var(--brass); }
+  .beats i.now.one { background: var(--abalone); }
+  @media (max-width: 520px) { .tuner-strings { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 760px) {
+    .keys { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .chords { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  @media (max-width: 420px) {
+    .chords { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .prog-grid { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { .nt circle { transition: none; } }
+
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .topbar > div { min-width: 0; }
+  .icon-link { flex: none; display: inline-flex; flex-direction: column; align-items: center; gap: 2px; color: var(--brass); text-decoration: none; border: 1px solid var(--line); background: var(--wood-1); border-radius: 10px; padding: 9px 10px 6px; font: 700 11px var(--f-body); letter-spacing: .04em; text-transform: uppercase; }
+  .icon-link:hover { border-color: var(--brass); color: var(--brass-hi); }
+  .icon-link:focus-visible { outline: 2px solid var(--abalone); outline-offset: 2px; }
+
+  .wrap { max-width: 900px; }
+  .mic-panel { gap: 16px; }
+  .mic-note b { font-size: clamp(72px, 16vw, 120px); }
+  .meter { height: 44px; }
+  .mic-verdict { font-size: 20px; }
+</style>
+</head><body>
+<div class="wrap">
+  <header class="topbar">
+    <div>
+      <h1>Guitar <span>Tuner</span></h1>
+      <p class="lede">Play a string and watch the needle, or tap a string below to hear the note and tune by ear.</p>
+    </div>
+    <a class="icon-link" href="index.html" title="Back to Guitar Key Atlas" aria-label="Back to Guitar Key Atlas"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Atlas</a>
+  </header>
+
+  <section class="neck-panel mic-panel" aria-label="Microphone tuner">
+    <div class="section-head"><div><h2>Listen</h2></div></div>
+    <div class="mic" id="mic">
+      <div class="card-foot"><button type="button" class="play" id="mic-go">Listen with microphone</button><span class="tip" id="mic-status">Play one string at a time. The tuner picks the closest string in the tuning above.</span></div>
+      <div class="mic-read" id="mic-read" hidden>
+        <div class="mic-note"><b id="mic-name">–</b><span id="mic-hz"></span></div>
+        <div class="meter" aria-hidden="true"><div class="meter-zone"></div><div class="meter-ticks"></div><div class="needle" id="mic-needle"></div></div>
+        <div class="mic-verdict" id="mic-verdict">Waiting for a note…</div>
+        <div class="lvl" aria-hidden="true"><span>Mic level</span><div class="lvl-bar"><i id="mic-level"></i></div></div>
+      </div>
+    </div>
+    <p class="tip" id="mic-unavail" hidden>The microphone isn't available in this view. Open the tuner on its own web page to use it, or tune by ear below.</p>
+  </section>
+
+  <section class="neck-panel" id="tuner" aria-label="Tuner">
+    <div class="section-head">
+      <div>
+        <h2>Tune by ear</h2>
+        <p>Tap a string to hear its target note. It repeats until you tap it again, so you can tune while it plays.</p>
+      </div>
+      <div class="row" style="flex:1 1 280px;max-width:560px;min-width:0">
+        <div class="ctl"><span class="lbl">Tuning</span><div class="pick" id="tn-tunings"></div></div>
+      </div>
+    </div>
+    <div class="row" style="max-width:520px">
+      <div class="ctl">
+        <span class="lbl">Sound</span>
+        <div class="seg" role="group" aria-label="Tone type">
+          <button type="button" id="tn-pluck" aria-pressed="true">Plucked</button>
+          <button type="button" id="tn-steady" aria-pressed="false">Steady tone</button>
+        </div>
+      </div>
+    </div>
+    <div class="tuner-strings" id="tn-strings"></div>
+    <p class="tip">Play the reference, then your string. If you hear a wobble, turn the peg slowly until it slows down and goes away. If your string sounds lower, tighten; higher, loosen. Your tuning choice is remembered for next time.</p>
+  </section>
+
+
+  <section class="controls" aria-label="Colors">
+    <div class="row">
+      <div class="ctl">
+        <span class="lbl">Colors <output id="skin-out">Midnight</output></span>
+        <div class="swatches" id="skins" role="group" aria-label="Color set"></div>
+      </div>
+    </div>
+  </section>
+</div>
+<script>
+const OPEN = [40,45,50,55,59,64];
+const mod = (n, m=12) => ((n % m) + m) % m;
+const state = {};
+try { Object.assign(state, JSON.parse(localStorage.getItem("gka-state") || "{}")); } catch (e) {}
+const save = () => { try { const cur = JSON.parse(localStorage.getItem("gka-state") || "{}"); localStorage.setItem("gka-state", JSON.stringify({ ...cur, skin: state.skin, tuning: state.tuning, tnMode: state.tnMode })); } catch (e) {} };
+// ---------- Audio: plucked string (Karplus-Strong) -----------------------
+let actx = null, out = null, wet = null;
+const bufCache = new Map(), stringVoice = [];
+const allVoices = new Set();
+function ensureAudio() {
+  if (actx) { if (actx.state === "suspended") actx.resume(); return; }
+  actx = new (window.AudioContext || window.webkitAudioContext)();
+  const comp = actx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 3;
+  comp.connect(actx.destination);
+  const body = actx.createBiquadFilter(); body.type = "peaking"; body.frequency.value = 180; body.gain.value = 3; body.Q.value = 0.8;
+  const tone = actx.createBiquadFilter(); tone.type = "lowpass"; tone.frequency.value = 5200;
+  out = actx.createGain(); out.gain.value = 0.7;
+  out.connect(body); body.connect(tone); tone.connect(comp);
+  const rev = actx.createConvolver();
+  const len = actx.sampleRate * 1.6, ir = actx.createBuffer(2, len, actx.sampleRate);
+  for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
+  rev.buffer = ir;
+  wet = actx.createGain(); wet.gain.value = 0.16;
+  tone.connect(wet); wet.connect(rev); rev.connect(comp);
+}
+function ksBuffer(midi) {
+  if (bufCache.has(midi)) return bufCache.get(midi);
+  const sr = actx.sampleRate, f = 440 * Math.pow(2, (midi - 69) / 12);
+  const P = Math.max(2, Math.floor(sr / f - 0.5));
+  const T = Math.min(4, Math.max(1.4, 3.6 * Math.pow(110 / f, 0.35)));
+  const n = Math.floor(sr * T), d = new Float32Array(n);
+  const rho = Math.pow(10, -2.4 / (f * T));
+  let prev = 0;
+  for (let i = 0; i < P; i++) { const r = Math.random() * 2 - 1; prev = 0.55 * r + 0.45 * prev; d[i] = prev; }
+  for (let i = P; i < n; i++) d[i] = rho * 0.5 * (d[i - P] + d[i - P - 1 < 0 ? 0 : i - P - 1]);
+  const buf = actx.createBuffer(1, n, sr); buf.copyToChannel(d, 0);
+  const entry = { buf, rate: f / (sr / (P + 0.5)), T };
+  bufCache.set(midi, entry);
+  return entry;
+}
+// ---------- Skins ---------------------------------------------------------
+const SKINS = [
+  { id: "midnight", name: "Midnight", a: "#0d111d", b: "#ffb547" },
+  { id: "seafoam", name: "Seafoam", a: "#18302d", b: "#ff8a65" },
+  { id: "arctic", name: "Arctic", a: "#f2f4f8", b: "#d9480f" },
+  { id: "ebony", name: "Ebony", a: "#141416", b: "#ff4d5e" },
+  { id: "rosewood", name: "Rosewood", a: "#2b1e19", b: "#e0ad55" },
+];
+function applySkin() {
+  const sk = SKINS.find(s => s.id === state.skin) || SKINS[0];
+  if (sk.id === "midnight") document.documentElement.removeAttribute("data-skin");
+  else document.documentElement.setAttribute("data-skin", sk.id);
+  document.getElementById("skin-out").textContent = sk.name;
+  document.getElementById("skins").innerHTML = SKINS.map(s =>
+    `<button type="button" data-skin="${s.id}" title="${s.name}" aria-label="${s.name} colors" aria-pressed="${s.id === sk.id}" style="background:linear-gradient(135deg, ${s.a} 0 55%, ${s.b} 55% 100%)"></button>`).join("");
+}
+document.getElementById("skins").addEventListener("click", e => {
+  const b = e.target.closest("[data-skin]"); if (!b) return;
+  state.skin = b.dataset.skin; applySkin(); save();
+});
+
+// ---------- Tuner ---------------------------------------------------------
+const TUNINGS = [
+  { id:"std", name:"Standard", m:[40,45,50,55,59,64] },
+  { id:"dropd", name:"Drop D", m:[38,45,50,55,59,64] },
+  { id:"half", name:"Half step down", m:[39,44,49,54,58,63], flats:true },
+  { id:"openg", name:"Open G", m:[38,43,50,55,59,62] },
+  { id:"opend", name:"Open D", m:[38,45,50,54,57,62] },
+  { id:"dadgad", name:"DADGAD", m:[38,45,50,55,57,62] },
+];
+const SHARP_N = ["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"], FLAT_N = ["C","D♭","D","E♭","E","F","G♭","G","A♭","A","B♭","B"];
+state.tuning = state.tuning || "std"; state.tnMode = state.tnMode || "pluck";
+const tuner = { s: -1, timer: null, nodes: [] };
+function tunerStop() {
+  clearTimeout(tuner.timer); tuner.timer = null;
+  if (actx) tuner.nodes.forEach(n => { try { n.g.gain.setTargetAtTime(0, actx.currentTime, 0.05); n.src.stop(actx.currentTime + 0.3); } catch (e) {} });
+  tuner.nodes = []; tuner.s = -1;
+  document.querySelectorAll("#tn-strings button.on").forEach(b => b.classList.remove("on"));
+}
+function tunerPlay(s) {
+  tunerStop(); ensureAudio(); tuner.s = s;
+  const T = TUNINGS.find(t => t.id === state.tuning), midi = T.m[s];
+  document.querySelector(`#tn-strings [data-ts="${s}"]`).classList.add("on");
+  if (state.tnMode === "steady") {
+    const f = 440 * Math.pow(2, (midi - 69) / 12), g = actx.createGain(), lp = actx.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 1400;
+    g.gain.setValueAtTime(0.0001, actx.currentTime); g.gain.exponentialRampToValueAtTime(0.16, actx.currentTime + 0.15);
+    [["sawtooth", 1, 0.5], ["sine", 1, 1], ["sine", 2, 0.25]].forEach(([type, mult, amp]) => {
+      const o = actx.createOscillator(), og = actx.createGain(); o.type = type; o.frequency.value = f * mult; og.gain.value = amp;
+      o.connect(og); og.connect(lp); o.start(); tuner.nodes.push({ src: o, g });
+    });
+    lp.connect(g); g.connect(out);
+  } else {
+    const loop = () => {
+      const { buf, rate } = ksBuffer(midi);
+      const src = actx.createBufferSource(); src.buffer = buf; src.playbackRate.value = rate;
+      const g = actx.createGain(); g.gain.value = 0.9; src.connect(g); g.connect(out); src.start();
+      tuner.nodes.push({ src, g }); if (tuner.nodes.length > 3) tuner.nodes.shift();
+      tuner.timer = setTimeout(loop, 2200);
+    };
+    loop();
+  }
+}
+function renderTuner() {
+  const T = TUNINGS.find(t => t.id === state.tuning) || TUNINGS[0], names = T.flats ? FLAT_N : SHARP_N;
+  document.getElementById("tn-tunings").innerHTML = TUNINGS.map(t => `<button type="button" data-tt="${t.id}" aria-pressed="${t.id === T.id}">${t.name}</button>`).join("");
+  document.getElementById("tn-pluck").setAttribute("aria-pressed", state.tnMode === "pluck");
+  document.getElementById("tn-steady").setAttribute("aria-pressed", state.tnMode === "steady");
+  document.getElementById("tn-strings").innerHTML = T.m.map((m, s) =>
+    `<button type="button" data-ts="${s}" class="${tuner.s === s ? "on" : ""}"><b>${names[m % 12]}</b><span>${6 - s}${["th","th","th","rd","nd","st"][s]} string · ${names[m % 12]}${Math.floor(m / 12) - 1}</span></button>`).join("");
+}
+document.getElementById("tuner").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.ts !== undefined) { const s = +b.dataset.ts; if (tuner.s === s) tunerStop(); else tunerPlay(s); return; }
+  if (b.dataset.tt !== undefined) { tunerStop(); state.tuning = b.dataset.tt; save(); renderTuner(); return; }
+  if (b.id === "tn-pluck" || b.id === "tn-steady") { const s = tuner.s; tunerStop(); state.tnMode = b.id === "tn-pluck" ? "pluck" : "steady"; save(); renderTuner(); if (s >= 0) tunerPlay(s); }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") { drumsStop(); tunerStop(); } });
+
+// ---------- Microphone tuner (works where the page may use the mic) ------
+const micT = { on: false, stream: null, an: null, buf: null, raf: 0, hist: [], frame: 0 };
+(function initMic() {
+  const framed = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+  const ok = !framed && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+  document.getElementById("mic").hidden = !ok; document.getElementById("mic-unavail").hidden = !!ok;
+})();
+function detectPitch(buf, sr) {
+  // McLeod normalized autocorrelation: works the same for quiet and loud input.
+  const n = buf.length;
+  let mean = 0; for (let i = 0; i < n; i++) mean += buf[i]; mean /= n;
+  const x = new Float32Array(n); let rms = 0;
+  for (let i = 0; i < n; i++) { x[i] = buf[i] - mean; rms += x[i] * x[i]; }
+  rms = Math.sqrt(rms / n); micT.level = rms;
+  if (rms < 0.0006) return -1;
+  const minLag = Math.floor(sr / 1100), maxLag = Math.min(Math.floor(sr / 60), n >> 1);
+  const nsdf = new Float32Array(maxLag + 2);
+  for (let lag = 1; lag <= maxLag + 1; lag++) {
+    let r = 0, m = 0;
+    for (let i = 0; i < n - lag; i++) { r += x[i] * x[i + lag]; m += x[i] * x[i] + x[i + lag] * x[i + lag]; }
+    nsdf[lag] = m > 0 ? 2 * r / m : 0;
+  }
+  const peaks = []; let lag = 1;
+  while (lag <= maxLag && nsdf[lag] > 0) lag++;          // skip the first lobe
+  while (lag <= maxLag) {
+    while (lag <= maxLag && nsdf[lag] <= 0) lag++;
+    let best = -1, bv = 0;
+    while (lag <= maxLag && nsdf[lag] > 0) { if (lag >= minLag && nsdf[lag] > bv) { bv = nsdf[lag]; best = lag; } lag++; }
+    if (best > 0) peaks.push([best, bv]);
+  }
+  if (!peaks.length) return -1;
+  const top = Math.max(...peaks.map(q => q[1]));
+  if (top < 0.55) return -1;
+  const [tau] = peaks.find(q => q[1] >= top * 0.9);
+  const a = nsdf[tau - 1], b = nsdf[tau], d = nsdf[tau + 1], den = a - 2 * b + d;
+  return sr / (tau + (den ? 0.5 * (a - d) / den : 0));
+}
+function micLoop() {
+  if (!micT.on) return;
+  micT.raf = requestAnimationFrame(micLoop);
+  if (micT.frame++ % 2) return;
+  micT.an.getFloatTimeDomainData(micT.buf);
+  const f = detectPitch(micT.buf, micT.ctx.sampleRate);
+  const lvl = Math.min(100, Math.max(0, (Math.log10((micT.level || 1e-6) + 1e-6) + 3.6) / 3 * 100));
+  document.getElementById("mic-level").style.width = lvl + "%";
+  if (f <= 0) {
+    micT.hist = []; micT.quiet = (micT.quiet || 0) + 1;
+    if (micT.quiet > 30) document.getElementById("mic-verdict").textContent = micT.level < 0.0006 ? "Can't hear anything yet. Pluck a string closer to the mic." : "Hearing sound, but no clear note. Let one string ring.";
+    document.getElementById("mic-verdict").classList.remove("ok");
+    return;
+  }
+  micT.quiet = 0;
+  micT.hist.push(f); if (micT.hist.length > 7) micT.hist.shift();
+  const fm = [...micT.hist].sort((x, y) => x - y)[micT.hist.length >> 1];
+  const T = TUNINGS.find(t => t.id === state.tuning) || TUNINGS[0], names = T.flats ? FLAT_N : SHARP_N;
+  const m = 69 + 12 * Math.log2(fm / 440);
+  let s = 0; T.m.forEach((tm, i) => { if (Math.abs(tm - m) < Math.abs(T.m[s] - m)) s = i; });
+  const cents = Math.round((m - T.m[s]) * 100);
+  document.getElementById("mic-name").textContent = names[T.m[s] % 12];
+  document.getElementById("mic-hz").textContent = `${fm.toFixed(1)} Hz · ${6 - s}${["th","th","th","rd","nd","st"][s]} string · ${cents > 0 ? "+" : ""}${cents} cents`;
+  const needle = document.getElementById("mic-needle"), v = document.getElementById("mic-verdict");
+  const ok = Math.abs(cents) <= 4;
+  needle.style.left = (50 + Math.max(-50, Math.min(50, cents))) + "%";
+  needle.classList.toggle("ok", ok);
+  v.classList.toggle("ok", ok);
+  v.textContent = ok ? "In tune" : cents < 0 ? (cents < -50 ? "Way low: tighten" : "A little low: tighten") : (cents > 50 ? "Way high: loosen" : "A little high: loosen");
+  document.querySelectorAll("#tn-strings button").forEach((b, i) => b.classList.toggle("on", i === s));
+}
+async function micStart() {
+  const st = document.getElementById("mic-status");
+  try {
+    tunerStop();
+    micT.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+  } catch (e) {
+    st.textContent = "The microphone is blocked. Allow it in your browser's site settings, or tune by ear with the string buttons above.";
+    return;
+  }
+  micT.ctx = micT.ctx || new (window.AudioContext || window.webkitAudioContext)();
+  if (micT.ctx.state === "suspended") await micT.ctx.resume();
+  const src = micT.ctx.createMediaStreamSource(micT.stream);
+  micT.an = micT.ctx.createAnalyser(); micT.an.fftSize = 4096; src.connect(micT.an);
+  micT.buf = new Float32Array(micT.an.fftSize); micT.on = true; micT.hist = [];
+  document.getElementById("mic-read").hidden = false;
+  document.getElementById("mic-go").textContent = "Stop listening";
+  st.textContent = "Listening. Play one string at a time and let it ring.";
+  micLoop();
+}
+function micStop() {
+  if (!micT.on) return;
+  micT.on = false; cancelAnimationFrame(micT.raf);
+  micT.stream.getTracks().forEach(t => t.stop());
+  document.getElementById("mic-go").textContent = "Listen with microphone";
+  document.getElementById("mic-status").textContent = "Play one string at a time. The tuner picks the closest string in the tuning above.";
+  document.querySelectorAll("#tn-strings button.on").forEach(b => b.classList.remove("on"));
+}
+document.getElementById("mic-go").addEventListener("click", () => micT.on ? micStop() : micStart());
+document.getElementById("tn-strings").addEventListener("click", () => micStop(), true);
+
+applySkin();
+renderTuner();
+</script>
+</body></html>

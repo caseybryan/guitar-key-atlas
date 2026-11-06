@@ -4,7 +4,7 @@ A one-page toolkit for guitar practice. Open `index.html` in a browser, or use t
 
 ## What's in it
 
-- **Tuner**: listens through your microphone and shows how far off each string is, or plays reference tones to tune by ear. Standard, Drop D, half step down, Open G, Open D and DADGAD.
+- **Tuner** (`tuner.html`, the tuning fork at the top right): listens through your microphone and shows how far off each string is, or plays reference tones to tune by ear. Standard, Drop D, half step down, Open G, Open D and DADGAD.
 - **Scales**: every scale for any key (major, minor, pentatonics, blues, all the modes, harmonic and melodic minor, Phrygian dominant), shown on a fretboard and played back one position at a time.
 - **Chord finder**: tap where your fingers are to name the chord, see which keys it belongs to, and work out the key of a progression.
 - **CAGED**: the five CAGED shapes for any chord in the key, with the pentatonic scale around each one.

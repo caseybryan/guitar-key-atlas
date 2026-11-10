@@ -220,6 +220,7 @@
   .cell .ghost { fill: var(--dot); opacity: 0; transition: opacity .12s; pointer-events: none; }
   .cell:hover .ghost { opacity: .28; }
   .str.dead { opacity: .3; }
+  .fd { pointer-events: none; }
   .fd circle { fill: var(--dot); }
   .fd text { fill: var(--dot-ink); font: 700 10px var(--f-mono); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
   .fd.r circle { fill: var(--brass); }
@@ -262,12 +263,62 @@
   @media (max-width: 420px) { .answers { grid-template-columns: repeat(4, minmax(0, 1fr)); } .ex-grid { grid-template-columns: 1fr; } }
   .neck-panel { grid-template-columns: minmax(0, 1fr); }
   .neck-panel > * { min-width: 0; }
+  /* Jam bar, tabs, jam station */
+  select { font: 700 14px var(--f-body); color: var(--bone); background: var(--wood-2); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; width: 100%; min-width: 0; }
+  select:focus-visible { outline: 2px solid var(--abalone); outline-offset: 2px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: -16px; }
+  .tabs button { background: var(--wood-1); border: 1px solid var(--wood-3); color: var(--muted); border-radius: 999px; padding: 8px 16px; font: 700 14px var(--f-body); cursor: pointer; }
+  .tabs button[aria-pressed=true] { background: var(--bone); color: var(--wood-0); border-color: var(--bone); }
+  .jambar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 15; background: var(--wood-0); border-bottom: 1px solid var(--wood-3); padding-block: 8px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-top: -20px; }
+  .jambar .keys { flex: 1 1 420px; gap: 4px; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .jambar .keys button { padding: 8px 2px; font-size: 17px; }
+  .jambar .keys small { display: none; }
+  .jambar #key-sel { display: none; width: auto; flex: none; }
+  .jambar .seg { flex: none; }
+  .jambar .seg button { padding: 8px 12px; }
+  .jambar .seg .n { display: none; }
+  .jb-tempo { display: flex; align-items: center; gap: 8px; flex: 1 1 150px; min-width: 0; font-size: 13px; color: var(--muted); }
+  .jb-tempo input { flex: 1; min-width: 50px; }
+  .jb-tempo output { font: 13px var(--f-mono); color: var(--bone); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .jambar .play { flex: none; min-width: 78px; }
+  .play.big { font-size: 16px; padding: 11px 20px; }
+  .jam-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 20px; }
+  .jam-chords { display: flex; flex-wrap: wrap; gap: 8px; }
+  .jam-chords .pc { position: relative; width: 74px; }
+  .jam-chords .pc svg { width: 64px; }
+  .jam-chords .pc .rn { font: 600 11px var(--f-mono); color: var(--brass-hi); }
+  .jam-chords .pc .rm { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--line); background: var(--wood-1); color: var(--muted); font: 12px/1 var(--f-body); cursor: pointer; padding: 0; }
+  .jam-add { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+  .jam-add button { background: var(--wood-2); border: 1px solid var(--wood-3); border-radius: 4px; padding: 6px 10px; cursor: pointer; font: 700 14px var(--f-body); }
+  .jam-add button:hover { border-color: var(--brass); }
+  .jam-now { font-size: 15px; color: var(--muted); min-height: 28px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .jam-now b { font: 800 26px/1 var(--f-display); color: var(--abalone); letter-spacing: .02em; }
+  .jam-now i { font: 600 13px var(--f-mono); font-style: normal; color: var(--brass-hi); }
+  .jam-ctl { border-top: 1px solid var(--wood-3); padding-top: 16px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .nt.ct circle { stroke: var(--abalone); stroke-width: 3.5; }
+  .chord-hit { background: none; border: 0; color: inherit; cursor: pointer; display: grid; justify-items: center; gap: 2px; width: 100%; padding: 0; font: inherit; }
+  .chord .add { font-size: 12px; padding: 3px 8px; margin-top: 4px; }
+  .prog .sug { font-size: 13px; color: var(--muted); }
+  @media (max-width: 900px) {
+    .jambar .keys { display: none; }
+    .jambar #key-sel { display: block; }
+  }
+  @media (max-width: 520px) {
+    .jambar { gap: 6px; flex-wrap: nowrap; }
+    .jb-tempo { flex: 1 1 90px; gap: 6px; }
+    .jb-tempo input { min-width: 36px; }
+    .jambar .play { min-width: 64px; padding-inline: 10px; }
+    .jambar #key-sel { padding: 8px 6px; }
+    .jambar .seg .w, .jb-tempo label { display: none; }
+    .jambar .seg .n { display: inline; }
+    .jambar .seg button { padding: 8px 9px; }
+  }
   /* Nav */
   body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 16; background: var(--wood-0); }
-  .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 15; background: var(--wood-0); padding-block: 8px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--wood-3); }
+  .nav { margin-top: -20px; background: var(--wood-0); padding-block: 8px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--wood-3); }
   .nav a { flex: none; color: var(--muted); text-decoration: none; font: 700 13px var(--f-body); padding: 7px 11px; border: 1px solid var(--wood-3); border-radius: 999px; background: var(--wood-1); }
   .nav a:hover { color: var(--bone); border-color: var(--line); }
-  [id].anchor { scroll-margin-top: 64px; }
+  [id].anchor { scroll-margin-top: 76px; }
 
   /* Tuner */
   .tuner-strings { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
@@ -358,28 +409,113 @@
   <header class="topbar">
     <div>
       <h1>Guitar Key <span>Atlas</span></h1>
-      <p class="lede">Pick a key, or tap in a chord shape to find out what you are playing and what key it belongs to. Every scale lights up on the neck, the chords that live in the key are ready to strum, and the progressions play through so you can jam over them. Everything is in standard tuning.</p>
+      <p class="lede">Pick a key, load a chord progression and solo over it with the scale lit up on the neck. Everything on the page follows the key, so you can keep the music running while you explore.</p>
     </div>
     <a class="icon-link" href="tuner.html" title="Tuner" aria-label="Open the tuner"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v7a5 5 0 0 0 10 0V2"/><path d="M12 14v7"/><circle cx="12" cy="21.5" r="1" fill="currentColor"/></svg>Tuner</a>
   </header>
 
-  <nav class="nav" aria-label="Sections">
-    <a href="#neck-sec">Scales</a><a href="#finder">Chord finder</a><a href="#caged">CAGED</a><a href="#chords-sec">Chords in key</a><a href="#voicings">Voicings</a><a href="#progs-sec">Progressions</a><a href="#drums">Drums</a><a href="#practice">Practice</a>
+  <div class="tabs" role="group" aria-label="View">
+    <button type="button" id="tab-main" aria-pressed="true">Jam &amp; learn</button>
+    <button type="button" id="tab-finder" aria-pressed="false">Chord finder</button>
+  </div>
+
+  <div class="jambar" id="jambar" aria-label="Key, tempo and playback">
+    <div class="keys" id="keys" role="group" aria-label="Key"></div>
+    <select id="key-sel" aria-label="Key"></select>
+    <div class="seg" role="group" aria-label="Major or minor key">
+      <button type="button" id="ton-major" aria-pressed="true"><span class="w">Major</span><span class="n">Maj</span></button>
+      <button type="button" id="ton-minor" aria-pressed="false"><span class="w">Minor</span><span class="n">Min</span></button>
+    </div>
+    <div class="jb-tempo">
+      <label for="tempo">Tempo</label>
+      <input type="range" id="tempo" min="50" max="180" step="2" value="96">
+      <output id="tempo-out">96 bpm</output>
+    </div>
+    <button type="button" class="play" id="jam-top" data-label="▶ Jam">▶ Jam</button>
+  </div>
+
+  <nav class="nav v-main" aria-label="Sections">
+    <a href="#neck-sec">Jam station</a><a href="#scales-sec">Scales</a><a href="#progs-sec">Progressions</a><a href="#chords-sec">Chords in key</a><a href="#caged">CAGED</a><a href="#voicings">Voicings</a><a href="#drums">Drums</a><a href="#practice">Practice</a>
   </nav>
 
-  <section class="controls" aria-label="Key and sound">
-    <div class="keys" id="keys" role="group" aria-label="Key"></div>
-    <div class="row">
+  <section class="neck-panel anchor v-main" id="neck-sec" aria-label="Jam station">
+    <div class="section-head">
+      <div>
+        <h2>Jam <em>station</em></h2>
+        <p>Pick a progression, press play and solo over it with the scale on the neck. Change the key, scale, strum or drums while it plays.</p>
+      </div>
+      <div class="card-foot"><button type="button" class="play big" id="jam-go" data-label="Play progression">Play progression</button></div>
+    </div>
+    <div class="jam-row">
+      <div class="ctl"><label for="jam-prog">Progression</label><select id="jam-prog"></select></div>
+      <div class="ctl"><label for="jam-scale">Scale on the neck</label><select id="jam-scale"></select></div>
+    </div>
+    <div class="jam-chords" id="jam-chords"></div>
+    <div class="jam-add" id="jam-add" hidden></div>
+    <div class="jam-now" id="jam-now"></div>
+    <div class="neck-top">
+      <div class="neck-title">
+        <div class="nm" id="neck-name">G Major</div>
+        <div class="sub" id="neck-sub"></div>
+      </div>
+      <div class="card-foot">
+        <button type="button" class="ghost" id="neck-play">Play the box</button>
+      </div>
+    </div>
+    <div class="chips" id="neck-chips"></div>
+    <div class="neck-scroll"><svg id="neck" viewBox="0 0 1100 214" role="img" aria-label="Fretboard showing the selected scale"></svg></div>
+    <div class="legend">
+      <span><b style="background:var(--brass)"></b>Root</span>
+      <span><b style="background:var(--dot)"></b>In the box (one position)</span>
+      <span><b style="background:var(--dot-dim);border:1.5px solid var(--dot-dim-line)"></b>Same scale, elsewhere</span>
+      <span><b style="background:transparent;border:3px solid var(--abalone)"></b>In the chord playing now</span>
+      <span>Tap any dot to hear it.</span>
+    </div>
+    <div class="row jam-ctl">
       <div class="ctl">
-        <span class="lbl">Key is</span>
-        <div class="seg" role="group" aria-label="Major or minor key">
-          <button type="button" id="ton-major" aria-pressed="true">Major</button>
-          <button type="button" id="ton-minor" aria-pressed="false">Minor</button>
+        <span class="lbl">Chords are played</span>
+        <div class="seg" role="group" aria-label="Strum pattern">
+          <button type="button" id="st-off" aria-pressed="false">Muted</button>
+          <button type="button" id="st-ring" aria-pressed="true">Ring</button>
+          <button type="button" id="st-quarter" aria-pressed="false">Strum</button>
+          <button type="button" id="st-pick" aria-pressed="false">Pick</button>
+        </div>
+      </div>
+      <div class="ctl"><label for="jam-drums">Drums</label><select id="jam-drums"></select></div>
+      <div class="ctl">
+        <span class="lbl">Each chord lasts</span>
+        <div class="seg" role="group" aria-label="Bars per chord">
+          <button type="button" id="bars-1" aria-pressed="true">1 bar</button>
+          <button type="button" id="bars-2" aria-pressed="false">2 bars</button>
         </div>
       </div>
       <div class="ctl">
-        <label for="tempo">Tempo <output id="tempo-out">96 bpm</output></label>
-        <input type="range" id="tempo" min="50" max="180" step="2" value="96">
+        <span class="lbl">Repeat</span>
+        <div class="seg" role="group" aria-label="Loop">
+          <button type="button" id="loop-off" aria-pressed="false">Once</button>
+          <button type="button" id="loop-on" aria-pressed="true">Loop</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="lbl">Count-in</span>
+        <div class="seg" role="group" aria-label="Count-in">
+          <button type="button" id="cin-off" aria-pressed="true">Off</button>
+          <button type="button" id="cin-on" aria-pressed="false">1 bar</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="lbl">Ring the current chord's notes</span>
+        <div class="seg" role="group" aria-label="Chord tone highlight">
+          <button type="button" id="tones-on" aria-pressed="true">On</button>
+          <button type="button" id="tones-off" aria-pressed="false">Off</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="lbl">Box starts on root on the</span>
+        <div class="seg" role="group" aria-label="Position">
+          <button type="button" id="pos-6" aria-pressed="true">6th string</button>
+          <button type="button" id="pos-5" aria-pressed="false">5th string</button>
+        </div>
       </div>
       <div class="ctl">
         <span class="lbl">Dots show</span>
@@ -389,41 +525,130 @@
         </div>
       </div>
       <div class="ctl">
-        <span class="lbl">Colors <output id="skin-out">Midnight</output></span>
-        <div class="swatches" id="skins" role="group" aria-label="Color set"></div>
+        <label for="jam-vol">Chord volume <output id="jam-vol-out">70%</output></label>
+        <input type="range" id="jam-vol" min="0" max="1" step="0.05" value="0.7">
       </div>
-      <div class="ctl">
-        <span class="lbl">Box starts on root on the</span>
-        <div class="seg" role="group" aria-label="Position">
-          <button type="button" id="pos-6" aria-pressed="true">6th string</button>
-          <button type="button" id="pos-5" aria-pressed="false">5th string</button>
+    </div>
+  </section>
+
+  <section class="section anchor v-main" id="scales-sec">
+    <div class="section-head">
+      <div>
+        <h2>Scales in <em id="scales-key">G</em></h2>
+        <p>Every scale that starts on this root. Tap a card to put it on the neck, even while a progression is playing. Hit play to hear the box run up and back down.</p>
+      </div>
+    </div>
+    <div id="scale-groups" class="section"></div>
+  </section>
+
+  <section class="section anchor v-main" id="progs-sec">
+    <div class="section-head">
+      <div>
+        <h2>Progressions</h2>
+        <p>Tap <b>Jam this</b> to load a progression into the jam station at the top. It starts playing and the neck switches to a scale that fits.</p>
+      </div>
+    </div>
+    <div class="prog-grid" id="progs"></div>
+  </section>
+
+  <section class="section anchor v-main" id="chords-sec">
+    <div class="section-head">
+      <div>
+        <h2>Chords in <em id="chords-key">G major</em></h2>
+        <p>The seven chords built from the key's own notes. Tap one to strum it, or tap <b>+ Add</b> to build your own progression in the jam station. Shapes use open chords where they exist, otherwise the E and A barre shapes from CAGED.</p>
+      </div>
+      <div class="ctl" style="min-width:200px">
+        <span class="lbl">Chord type</span>
+        <div class="seg" role="group" aria-label="Triads or sevenths">
+          <button type="button" id="sev-off" aria-pressed="true">Triads</button>
+          <button type="button" id="sev-on" aria-pressed="false">Add 7ths</button>
+        </div>
+      </div>
+    </div>
+    <div class="chords" id="chords"></div>
+  </section>
+
+  <section class="neck-panel anchor v-main" id="caged" aria-label="CAGED">
+    <div class="section-head">
+      <div>
+        <h2>CAGED <em id="cg-name">G</em></h2>
+        <p id="cg-lede"></p>
+      </div>
+      <div class="card-foot">
+        <button type="button" class="play" id="cg-strum">Strum this shape</button>
+        <button type="button" class="ghost" id="cg-walk" data-label="Walk up the neck">Walk up the neck</button>
+      </div>
+    </div>
+    <div class="ctl"><span class="lbl">Chord from the key</span><div class="pick" id="cg-chords"></div></div>
+    <div class="shape-btns" id="cg-shapes"></div>
+    <div class="neck-scroll"><svg id="cg-neck" viewBox="0 0 1100 214" role="img" aria-label="Fretboard showing CAGED shapes"></svg></div>
+    <div class="caged-foot">
+      <div class="cd" id="cg-diagram"></div>
+      <div class="stack" style="flex:1 1 260px">
+        <div class="sub" id="cg-info" style="font-size:15px"></div>
+        <div class="seg" role="group" aria-label="Scale around shape" style="max-width:360px">
+          <button type="button" id="cg-sc-off" aria-pressed="true">Chord only</button>
+          <button type="button" id="cg-sc-on" aria-pressed="false">Add pentatonic around it</button>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="neck-panel anchor" id="neck-sec" aria-label="Fretboard">
-    <div class="neck-top">
-      <div class="neck-title">
-        <div class="nm" id="neck-name">G Major</div>
-        <div class="sub" id="neck-sub"></div>
+  <section class="section anchor v-main" id="voicings">
+    <div class="section-head">
+      <div>
+        <h2>Voicings for <em id="v-name">G</em></h2>
+        <p>Every playable way to grab this chord up the neck, up to four fingers within four frets. Tap one to hear it, or send it to the chord finder.</p>
       </div>
-      <div class="card-foot">
-        <button type="button" class="play" id="neck-play">Play the box</button>
+      <div class="ctl" style="min-width:220px">
+        <span class="lbl">Lowest note</span>
+        <div class="seg" role="group" aria-label="Inversions">
+          <button type="button" id="v-inv-off" aria-pressed="true">Root only</button>
+          <button type="button" id="v-inv-on" aria-pressed="false">Any chord note</button>
+        </div>
       </div>
     </div>
-    <div class="chips" id="neck-chips"></div>
-    <div class="neck-scroll"><svg id="neck" viewBox="0 0 1100 214" role="img" aria-label="Fretboard showing the selected scale"></svg></div>
-    <div class="legend">
-      <span><b style="background:var(--brass)"></b>Root</span>
-      <span><b style="background:var(--dot)"></b>In the box (one position)</span>
-      <span><b style="background:var(--dot-dim);border:1.5px solid var(--dot-dim-line)"></b>Same scale, elsewhere on the neck</span>
-      <span><b style="background:var(--abalone)"></b>Sounding now</span>
-      <span>Tap any dot to hear it.</span>
-    </div>
+    <div class="ctl"><span class="lbl">Root</span><div class="pick" id="v-roots"></div></div>
+    <div class="ctl"><span class="lbl">Type</span><div class="pick" id="v-types"></div></div>
+    <div class="v-grid" id="v-grid"></div>
   </section>
 
-  <section class="neck-panel anchor" id="finder" aria-label="Chord finder">
+  <section class="neck-panel anchor v-main" id="drums" aria-label="Drums and metronome">
+    <div class="section-head">
+      <div>
+        <h2>Drums &amp; <em>metronome</em></h2>
+        <p>A beat to play along with at the tempo set at the top. Leave it running and start any progression or exercise: they line up with the next bar.</p>
+      </div>
+      <div class="card-foot">
+        <button type="button" class="play" id="dr-go">Start drums</button>
+      </div>
+    </div>
+    <div class="pick" id="dr-pats"></div>
+    <div class="row" style="max-width:640px">
+      <div class="ctl">
+        <label for="dr-vol">Drum volume <output id="dr-vol-out">70%</output></label>
+        <input type="range" id="dr-vol" min="0" max="1" step="0.05" value="0.7">
+      </div>
+      <div class="ctl">
+        <label for="dr-tempo">Tempo <output id="dr-tempo-out">96 bpm</output></label>
+        <input type="range" id="dr-tempo" min="50" max="180" step="2" value="96">
+      </div>
+    </div>
+    <div class="beats" id="dr-beats"></div>
+    <div class="pattern" id="dr-grid"></div>
+  </section>
+
+  <section class="section anchor v-main" id="practice">
+    <div class="section-head">
+      <div>
+        <h2>Practice in <em id="ex-key">G major</em></h2>
+        <p>Exercises that rewrite themselves for whatever key is picked above. The ones that play use the tempo slider, so start slow and nudge it up as they get clean.</p>
+      </div>
+    </div>
+    <div class="ex-grid" id="ex"></div>
+  </section>
+
+  <section class="neck-panel v-finder" id="finder" hidden aria-label="Chord finder">
     <div class="section-head">
       <div>
         <h2>What am I <em>playing?</em></h2>
@@ -459,138 +684,11 @@
     </div>
   </section>
 
-  <section class="neck-panel anchor" id="caged" aria-label="CAGED">
-    <div class="section-head">
-      <div>
-        <h2>CAGED <em id="cg-name">G</em></h2>
-        <p id="cg-lede"></p>
-      </div>
-      <div class="card-foot">
-        <button type="button" class="play" id="cg-strum">Strum this shape</button>
-        <button type="button" class="ghost" id="cg-walk" data-label="Walk up the neck">Walk up the neck</button>
-      </div>
+  <section class="controls" aria-label="Colors">
+    <div class="ctl">
+      <span class="lbl">Colors <output id="skin-out">Midnight</output></span>
+      <div class="swatches" id="skins" role="group" aria-label="Color set"></div>
     </div>
-    <div class="ctl"><span class="lbl">Chord from the key</span><div class="pick" id="cg-chords"></div></div>
-    <div class="shape-btns" id="cg-shapes"></div>
-    <div class="neck-scroll"><svg id="cg-neck" viewBox="0 0 1100 214" role="img" aria-label="Fretboard showing CAGED shapes"></svg></div>
-    <div class="caged-foot">
-      <div class="cd" id="cg-diagram"></div>
-      <div class="stack" style="flex:1 1 260px">
-        <div class="sub" id="cg-info" style="font-size:15px"></div>
-        <div class="seg" role="group" aria-label="Scale around shape" style="max-width:360px">
-          <button type="button" id="cg-sc-off" aria-pressed="true">Chord only</button>
-          <button type="button" id="cg-sc-on" aria-pressed="false">Add pentatonic around it</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-head">
-      <div>
-        <h2>Scales in <em id="scales-key">G</em></h2>
-        <p>Every scale that starts on this root. Tap a card to put it on the neck, or hit play to hear the box run up and back down.</p>
-      </div>
-    </div>
-    <div id="scale-groups" class="section"></div>
-  </section>
-
-  <section class="section anchor" id="chords-sec">
-    <div class="section-head">
-      <div>
-        <h2>Chords in <em id="chords-key">G major</em></h2>
-        <p>The seven chords built from the key's own notes. Tap one to strum it. Shapes use open chords where they exist, otherwise the E and A barre shapes from CAGED.</p>
-      </div>
-      <div class="ctl" style="min-width:200px">
-        <span class="lbl">Chord type</span>
-        <div class="seg" role="group" aria-label="Triads or sevenths">
-          <button type="button" id="sev-off" aria-pressed="true">Triads</button>
-          <button type="button" id="sev-on" aria-pressed="false">Add 7ths</button>
-        </div>
-      </div>
-    </div>
-    <div class="chords" id="chords"></div>
-  </section>
-
-  <section class="section anchor" id="voicings">
-    <div class="section-head">
-      <div>
-        <h2>Voicings for <em id="v-name">G</em></h2>
-        <p>Every playable way to grab this chord up the neck, up to four fingers within four frets. Tap one to hear it, or send it to the chord finder.</p>
-      </div>
-      <div class="ctl" style="min-width:220px">
-        <span class="lbl">Lowest note</span>
-        <div class="seg" role="group" aria-label="Inversions">
-          <button type="button" id="v-inv-off" aria-pressed="true">Root only</button>
-          <button type="button" id="v-inv-on" aria-pressed="false">Any chord note</button>
-        </div>
-      </div>
-    </div>
-    <div class="ctl"><span class="lbl">Root</span><div class="pick" id="v-roots"></div></div>
-    <div class="ctl"><span class="lbl">Type</span><div class="pick" id="v-types"></div></div>
-    <div class="v-grid" id="v-grid"></div>
-  </section>
-
-  <section class="section anchor" id="progs-sec">
-    <div class="section-head">
-      <div>
-        <h2>Progressions</h2>
-        <p>One bar per chord at the tempo above. Turn on loop and noodle over it with the suggested scale.</p>
-      </div>
-      <div class="row" style="flex:1 1 280px;max-width:520px;min-width:0">
-        <div class="ctl">
-          <span class="lbl">Strum</span>
-          <div class="seg" role="group" aria-label="Strum pattern">
-            <button type="button" id="st-ring" aria-pressed="true">Let ring</button>
-            <button type="button" id="st-quarter" aria-pressed="false">Quarters</button>
-            <button type="button" id="st-pick" aria-pressed="false">Fingerpick</button>
-          </div>
-        </div>
-        <div class="ctl">
-          <span class="lbl">Repeat</span>
-          <div class="seg" role="group" aria-label="Loop">
-            <button type="button" id="loop-off" aria-pressed="true">Once</button>
-            <button type="button" id="loop-on" aria-pressed="false">Loop</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="prog-grid" id="progs"></div>
-  </section>
-
-  <section class="neck-panel anchor" id="drums" aria-label="Drums and metronome">
-    <div class="section-head">
-      <div>
-        <h2>Drums &amp; <em>metronome</em></h2>
-        <p>A beat to play along with at the tempo set at the top. Leave it running and start any progression or exercise: they line up with the next bar.</p>
-      </div>
-      <div class="card-foot">
-        <button type="button" class="play" id="dr-go">Start drums</button>
-      </div>
-    </div>
-    <div class="pick" id="dr-pats"></div>
-    <div class="row" style="max-width:640px">
-      <div class="ctl">
-        <label for="dr-vol">Drum volume <output id="dr-vol-out">70%</output></label>
-        <input type="range" id="dr-vol" min="0" max="1" step="0.05" value="0.7">
-      </div>
-      <div class="ctl">
-        <label for="dr-tempo">Tempo <output id="dr-tempo-out">96 bpm</output></label>
-        <input type="range" id="dr-tempo" min="50" max="180" step="2" value="96">
-      </div>
-    </div>
-    <div class="beats" id="dr-beats"></div>
-    <div class="pattern" id="dr-grid"></div>
-  </section>
-
-  <section class="section anchor" id="practice">
-    <div class="section-head">
-      <div>
-        <h2>Practice in <em id="ex-key">G major</em></h2>
-        <p>Exercises that rewrite themselves for whatever key is picked above. The ones that play use the tempo slider, so start slow and nudge it up as they get clean.</p>
-      </div>
-    </div>
-    <div class="ex-grid" id="ex"></div>
   </section>
 
   <button type="button" id="stop-fab" hidden onclick="stopEverything()">Stop</button>
@@ -862,7 +960,7 @@ function ensureAudio() {
   comp.connect(actx.destination);
   const body = actx.createBiquadFilter(); body.type = "peaking"; body.frequency.value = 180; body.gain.value = 3; body.Q.value = 0.8;
   const tone = actx.createBiquadFilter(); tone.type = "lowpass"; tone.frequency.value = 5200;
-  out = actx.createGain(); out.gain.value = 0.7;
+  out = actx.createGain(); out.gain.value = state.gtrVol ?? 0.7;
   out.connect(body); body.connect(tone); tone.connect(comp);
   const rev = actx.createConvolver();
   const len = actx.sampleRate * 1.6, ir = actx.createBuffer(2, len, actx.sampleRate);
@@ -906,6 +1004,7 @@ function strum(frets, when, vel = 0.75, up = false) {
 
 // ---------- Playback control ---------------------------------------------
 let timers = [], playing = null;
+var jamOwnsDrums = false, holdDrums = false, jamPcs = null, tempoT = 0;
 function stopAll() {
   timers.forEach(clearTimeout); timers = [];
   if (actx) {
@@ -915,9 +1014,13 @@ function stopAll() {
   }
   const fab = document.getElementById("stop-fab"); if (fab) fab.hidden = !(typeof drumState !== "undefined" && drumState.on);
   document.querySelectorAll(".on").forEach(e => e.classList.remove("on"));
+  document.querySelectorAll(".nt.ct").forEach(e => e.classList.remove("ct"));
+  jamPcs = null;
+  if (jamOwnsDrums && !holdDrums) { jamOwnsDrums = false; drumsStop(); }
   document.querySelectorAll(".playing").forEach(e => e.classList.remove("playing"));
   document.querySelectorAll("[data-label]").forEach(b => b.textContent = b.dataset.label);
   playing = null;
+  paintJamIdle();
   stopClicks();
   if (typeof changes !== "undefined" && changes.running) { changes.running = false; paintChanges("Stopped."); }
 }
@@ -932,13 +1035,14 @@ function markPlaying(btn, key) {
 function playBox(scaleId, btn) {
   const key = "scale:" + scaleId;
   if (playing === key) { stopAll(); return; }
-  stopAll(); ensureAudio();
+  const over = playing === "jam";   // over a running jam, the box plays once on top without stopping it
+  if (!over) stopAll();
+  ensureAudio();
   const nr = neckRoot(), info = scaleInfo(SC[scaleId], nr), box = boxFor(info, nr);
   const seq = box.path.concat(box.path.slice(0, -1).reverse());
   const step = 60 / state.tempo / 2, t0 = actx.currentTime + 0.06;
-  markPlaying(btn, key);
   const neckBtn = document.getElementById("neck-play");
-  if (btn !== neckBtn && state.scale === scaleId) markPlaying(neckBtn, key);
+  if (!over) { markPlaying(btn, key); if (btn !== neckBtn && state.scale === scaleId) markPlaying(neckBtn, key); }
   seq.forEach((n, i) => {
     pluck(n.s, n.f, t0 + i * step, 0.85);
     at(i * step * 1000 + 60, () => {
@@ -946,48 +1050,166 @@ function playBox(scaleId, btn) {
       flash(document.querySelector(`#neck-chips [data-pc="${mod(n.p)}"]`), step * 900);
     });
   });
-  at(seq.length * step * 1000 + 300, stopAll);
+  if (!over) at(seq.length * step * 1000 + 300, stopAll);
 }
 
 function playChordOnce(ch) { ensureAudio(); strum(ch.frets, actx.currentTime + 0.03, 0.8); }
 
-function scheduleBar(ch, t0, bar) {
-  const beat = bar / 4;
+function scheduleBar(ch, t0, bar, beats = 4) {
+  if (state.strum === "off") return;
+  const beat = bar / beats;
   if (state.strum === "ring") strum(ch.frets, t0, 0.8);
-  else if (state.strum === "quarter") [0.85, 0.55, 0.75, 0.55].forEach((v, i) => strum(ch.frets, t0 + i * beat, v, false));
+  else if (state.strum === "quarter") for (let i = 0; i < beats; i++) strum(ch.frets, t0 + i * beat, [0.85, 0.55, 0.75, 0.55][i % 4], false);
   else {
     const notes = ch.frets.map((f, s) => ({ f, s })).filter(o => o.f >= 0);
-    const L = notes.length, pick = [0, 2, 3, 4, L - 1, 4, 3, 2].map(i => notes[Math.min(i, L - 1)]);
-    pick.forEach((o, i) => pluck(o.s, o.f, t0 + i * beat / 2, i === 0 ? 0.85 : 0.6));
+    const L = notes.length, order = [0, 2, 3, 4, L - 1, 4, 3, 2];
+    for (let i = 0; i < beats * 2; i++) { const o = notes[Math.min(order[i % 8], L - 1)]; pluck(o.s, o.f, t0 + i * beat / 2, i === 0 ? 0.85 : 0.6); }
   }
 }
-function playProg(idx, btn) {
-  const key = "prog:" + idx;
-  if (playing === key) { stopAll(); return; }
-  stopAll(); ensureAudio();
-  const ctx = keyContext(), p = PROGS[state.ton][idx];
-  const chords = p.roman.map(r => parseRoman(ctx, r));
-  const card = document.getElementById("prog-" + idx);
-  markPlaying(btn, key); card.classList.add("playing");
-  const bar = 4 * 60 / state.tempo;
-  const run = (startT) => {
-    if (playing !== key) return;
-    const base = actx.currentTime;
-    chords.forEach((ch, i) => {
-      scheduleBar(ch, startT + i * bar, bar);
-      at((startT - base + i * bar) * 1000, () => flash(card.querySelector(`[data-i="${i}"]`), bar * 1000 - 40));
-    });
-    const endT = startT + chords.length * bar;
-    if (state.loop) at((endT - base - 0.25) * 1000, () => run(endT));
-    else at((endT - base + 0.6) * 1000, stopAll);
-  };
-  run((typeof drumsNextBar === "function" && drumsNextBar()) || actx.currentTime + 0.08);
+
+// ---------- Jam station ---------------------------------------------------
+function jamSource() {
+  const ctx = keyContext();
+  if (state.jam === "custom") {
+    return { custom: true, name: "My progression", chords: state.custom.map(r => parseRoman(ctx, r)), scale: homeId(), scRoot: state.root };
+  }
+  const list = PROGS[state.ton];
+  if (!(state.jam >= 0 && state.jam < list.length)) state.jam = 0;
+  const p = list[state.jam];
+  return { idx: state.jam, name: p.name, feel: p.feel, chords: p.roman.map(r => parseRoman(ctx, r)), scale: p.scale, scRoot: p.rel ? mod(state.root + 9) : state.root };
 }
+function applySuggested() {
+  const S = jamSource();
+  state.scale = S.scale; state.neckRoot = S.scRoot === state.root ? null : S.scRoot; state.scaleAuto = true;
+}
+function markCards() {
+  document.querySelectorAll(".card[data-scale]").forEach(c => c.setAttribute("aria-current", state.neckRoot === null && c.dataset.scale === state.scale));
+}
+function loadJam(src) {
+  state.jam = src; applySuggested(); save();
+  renderJam(); renderNeck(); markCards();
+}
+function syncJamScale() {
+  const sel = document.getElementById("jam-scale"); if (!sel) return;
+  const S = jamSource();
+  const label = (id, root) => `${scaleInfo(SC[id], root).rootName} ${SC[id].name}`;
+  const sug = S.scRoot === state.root ? S.scale : `rel:${S.scale}:${S.scRoot}`;
+  const cur = state.neckRoot === null ? state.scale : `rel:${state.scale}:${state.neckRoot}`;
+  let h = "";
+  if (sug.startsWith("rel:")) h += `<optgroup label="Suggested for this progression"><option value="${sug}">${label(S.scale, S.scRoot)}</option></optgroup>`;
+  if (cur.startsWith("rel:") && cur !== sug) h += `<option value="${cur}">${label(state.scale, state.neckRoot)}</option>`;
+  h += `<optgroup label="Scales in this key">` + SCALES.map(s => `<option value="${s.id}">${label(s.id, state.root)}${s.id === sug ? " (suggested)" : ""}</option>`).join("") + `</optgroup>`;
+  sel.innerHTML = h; sel.value = cur;
+}
+function paintJamIdle() {
+  const el = document.getElementById("jam-now"); if (!el) return;
+  const S = jamSource();
+  el.textContent = S.custom
+    ? (S.chords.length ? "Your own progression. Add more chords below, or remove one with its ×." : "Nothing here yet. Add chords below to build your own progression.")
+    : S.feel;
+}
+function paintTones() {
+  if (!jamPcs || !state.jamTones) { document.querySelectorAll("#neck .nt.ct").forEach(g => g.classList.remove("ct")); return; }
+  document.querySelectorAll("#neck .nt").forEach(g => g.classList.toggle("ct", jamPcs.has(mod(OPEN[+g.dataset.s] + +g.dataset.f))));
+}
+function renderJam() {
+  const S = jamSource(), ctx = keyContext();
+  const ps = document.getElementById("jam-prog");
+  ps.innerHTML = `<optgroup label="In ${ctx.name}">` + PROGS[state.ton].map((p, i) =>
+    `<option value="${i}">${p.name}: ${p.roman.map(r => parseRoman(ctx, r).name).join(" ")}</option>`).join("") +
+    `</optgroup><option value="custom">My progression${state.custom.length ? ` (${state.custom.length} chords)` : " (build your own)"}</option>`;
+  ps.value = S.custom ? "custom" : String(S.idx);
+  document.getElementById("jam-chords").innerHTML = S.chords.map((c, i) =>
+    `<div class="pc" data-i="${i}" title="Tap to hear ${c.name}"><b>${c.name}</b><span class="rn">${c.roman}</span>${chordSVG(c.frets, c.pc)}${S.custom ? `<button type="button" class="rm" data-jrm="${i}" aria-label="Remove ${c.name}">×</button>` : ""}</div>`).join("");
+  const add = document.getElementById("jam-add");
+  add.hidden = !S.custom;
+  if (S.custom) add.innerHTML = `<span>Add a chord:</span>` + diatonic(ctx).map(c => `<button type="button" data-addr="${c.roman}">+ ${c.name}</button>`).join("") +
+    (state.custom.length ? `<button type="button" data-addr-clear="1">Clear all</button>` : "");
+  const ds = document.getElementById("jam-drums");
+  ds.innerHTML = `<option value="off">Off</option>` + PATTERNS.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
+  ds.value = state.jamDrums;
+  document.getElementById("jam-vol").value = state.gtrVol;
+  document.getElementById("jam-vol-out").textContent = Math.round(state.gtrVol * 100) + "%";
+  if (playing !== "jam") paintJamIdle();
+  syncJamScale();
+}
+function addCustom(roman) {
+  if (state.custom.length >= 16) return false;
+  state.custom.push(roman); state.jam = "custom"; save(); renderJam();
+  return true;
+}
+function jamTick(S, i) {
+  const ch = S.chords[i], next = S.chords[(i + 1) % S.chords.length];
+  document.querySelectorAll("#jam-chords .pc.on, .prog .pc.on").forEach(e => e.classList.remove("on"));
+  const chip = document.querySelector(`#jam-chords [data-i="${i}"]`); if (chip) chip.classList.add("on");
+  if (!S.custom) { const c = document.querySelector(`#prog-${S.idx} [data-i="${i}"]`); if (c) c.classList.add("on"); }
+  document.getElementById("jam-now").innerHTML = `Now <b>${ch.name}</b><i>${ch.roman}</i>${S.chords.length > 1 ? `<span>next ${next.name}</span>` : ""}`;
+  jamPcs = new Set(QIV[ch.q].map(x => mod(ch.pc + x)));
+  paintTones();
+}
+function jamPlay() {
+  const S0 = jamSource();
+  if (!S0.chords.length) { document.getElementById("neck-sec").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  holdDrums = jamOwnsDrums && state.jamDrums !== "off";
+  stopAll(); holdDrums = false;
+  ensureAudio();
+  playing = "jam";
+  ["jam-go", "jam-top"].forEach(id => { const b = document.getElementById(id); b.classList.add("playing"); b.textContent = "Stop"; });
+  if (!S0.custom) { const b = document.querySelector(`[data-prog="${S0.idx}"]`); if (b) { b.classList.add("playing"); b.textContent = "Stop"; } }
+  if (state.jamDrums !== "off") {
+    if (state.drum !== state.jamDrums) {
+      state.drum = state.jamDrums; renderDrums();
+      if (drumState.on) { drumState.step = 0; drumState.next = Math.max(drumState.next, actx.currentTime + 0.05); drumState.queue = []; drumTick(); }
+    }
+    if (!drumState.on) drumsStart();
+    jamOwnsDrums = true;
+  }
+  document.getElementById("stop-fab").hidden = true;   // the pinned bar already has Stop
+  if (drumState.on) document.getElementById("jam-now").textContent = "Coming in on the next bar…";
+  const beats = () => drumState.on ? curPattern().beats : 4;
+  let start = (drumState.on && drumsNextBar()) || actx.currentTime + 0.08;
+  if (state.countIn) {
+    const nb = beats(), beat = 60 / state.tempo;
+    if (!drumState.on) for (let i = 0; i < nb; i++) metClick(start + i * beat, i === 0);
+    document.getElementById("jam-now").textContent = "Count-in…";
+    start += nb * beat;
+  }
+  const step = (i, t) => {
+    if (playing !== "jam") return;
+    const S = jamSource();
+    if (!S.chords.length) { stopAll(); return; }
+    if (i >= S.chords.length) i = 0;
+    const nb = beats(), bar = nb * 60 / state.tempo, span = bar * state.barsPer;
+    for (let b = 0; b < state.barsPer; b++) scheduleBar(S.chords[i], t + b * bar, bar, nb);
+    at((t - actx.currentTime) * 1000, () => jamTick(S, i));
+    at((t + span - actx.currentTime - 0.2) * 1000, () => {
+      if (i === S.chords.length - 1 && !state.loop) at(800, stopAll);
+      else step(i + 1, t + span);
+    });
+  };
+  step(0, start);
+}
+function jamToggle() { if (playing === "jam") stopAll(); else jamPlay(); }
+function playProg(idx) {
+  if (playing === "jam" && state.jam === idx) { stopAll(); return; }
+  loadJam(idx); jamPlay();
+  document.getElementById("neck-sec").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+// Run a change that re-renders the page, then pick the jam back up if it was playing.
+function keepJam(fn) {
+  const was = playing === "jam";
+  holdDrums = was && jamOwnsDrums && state.jamDrums !== "off";
+  try { fn(); } finally { holdDrums = false; }
+  if (was) jamPlay();
+}
+const softStop = () => { if (playing !== "jam") stopAll(); };
 
 // ---------- State + render -----------------------------------------------
 const neckRoot = () => state.neckRoot ?? state.root;
-const state = { neckRoot: null, root: 7, ton: "major", scale: "major", labels: "notes", pos: "6", tempo: 96, sev: false, strum: "ring", loop: false };
+const state = { neckRoot: null, root: 7, ton: "major", scale: "major", labels: "notes", pos: "6", tempo: 96, sev: false, strum: "ring", loop: true, jam: 0, custom: [], barsPer: 1, countIn: false, jamTones: true, jamDrums: "off", gtrVol: 0.7, scaleAuto: true, v: 2 };
 try { Object.assign(state, JSON.parse(localStorage.getItem("gka-state") || "{}")); } catch (e) {}
+if (state.v !== 2) { state.v = 2; state.loop = true; state.scaleAuto = true; }
+if (!Array.isArray(state.custom)) state.custom = [];
 const save = () => { try { localStorage.setItem("gka-state", JSON.stringify(state)); } catch (e) {} };
 
 function renderKeys() {
@@ -996,6 +1218,9 @@ function renderKeys() {
     const [a, b] = KEY_LABEL[pc];
     return `<button type="button" data-pc="${pc}" aria-pressed="${+pc === state.root}">${a}<small>${b}</small></button>`;
   }).join("");
+  const sel = document.getElementById("key-sel");
+  sel.innerHTML = Object.keys(KEY_LABEL).map(pc => `<option value="${pc}">${KEY_LABEL[pc][0]}</option>`).join("");
+  sel.value = state.root;
 }
 
 function renderNeck() {
@@ -1007,6 +1232,7 @@ function renderNeck() {
   document.getElementById("neck-chips").innerHTML = info.notes.map(n =>
     `<span class="chip${n.semi === 0 ? " root" : ""}" data-pc="${n.pc}">${n.name}<i>${n.iv}</i></span>`).join("");
   drawNeck(info, box);
+  paintTones(); syncJamScale();
   renderExercises();
 }
 
@@ -1050,9 +1276,10 @@ function renderChords() {
   document.getElementById("chords-key").textContent = ctx.name;
   const chords = diatonic(ctx);
   document.getElementById("chords").innerHTML = chords.map((c, i) => `
-    <button type="button" class="chord" data-chord="${i}" aria-label="${c.name}, ${c.roman}">
-      <span class="rn">${c.roman}</span><span class="cn">${c.name}</span>${chordSVG(c.frets, c.pc)}
-    </button>`).join("");
+    <div class="chord">
+      <button type="button" class="chord-hit" data-chord="${i}" aria-label="Strum ${c.name}, ${c.roman}"><span class="rn">${c.roman}</span><span class="cn">${c.name}</span>${chordSVG(c.frets, c.pc)}</button>
+      <button type="button" class="ghost add" data-add="${i}" aria-label="Add ${c.name} to my progression">+ Add</button>
+    </div>`).join("");
   renderChords.list = chords;
 }
 
@@ -1070,8 +1297,8 @@ function renderProgs() {
       <p class="mood">${p.feel}</p>
       <div class="pchords">${chords.map((c, i) => `<div class="pc" data-i="${i}" data-pchord="${idx}:${i}" title="${c.name}"><b>${c.name}</b>${chordSVG(c.frets, c.pc)}</div>`).join("")}</div>
       <div class="card-foot">
-        <button type="button" class="play" data-prog="${idx}" data-label="Play">Play</button>
-        <button type="button" class="ghost" data-solo="${p.scale}" data-solo-root="${scRootPc}">Solo with ${scName}</button>
+        <button type="button" class="play" data-prog="${idx}" data-label="Jam this">Jam this</button>
+        <span class="sug">Solo with ${scName}</span>
       </div>
     </div>`;
   }).join("");
@@ -1083,26 +1310,76 @@ function syncSegs() {
   set("lab-notes", state.labels === "notes"); set("lab-iv", state.labels === "iv");
   set("pos-6", state.pos === "6"); set("pos-5", state.pos === "5");
   set("sev-off", !state.sev); set("sev-on", state.sev);
-  set("st-ring", state.strum === "ring"); set("st-quarter", state.strum === "quarter"); set("st-pick", state.strum === "pick");
+  set("st-off", state.strum === "off"); set("st-ring", state.strum === "ring"); set("st-quarter", state.strum === "quarter"); set("st-pick", state.strum === "pick");
   set("loop-off", !state.loop); set("loop-on", state.loop);
+  set("bars-1", state.barsPer === 1); set("bars-2", state.barsPer === 2);
+  set("cin-off", !state.countIn); set("cin-on", state.countIn);
+  set("tones-on", state.jamTones); set("tones-off", !state.jamTones);
   document.getElementById("tempo").value = state.tempo;
   document.getElementById("tempo-out").textContent = state.tempo + " bpm";
 }
-function renderAll() { stopAll(); syncSegs(); renderKeys(); renderNeck(); renderScales(); renderChords(); renderProgs(); renderCaged(); renderVoicings(); save(); }
+function renderAll() { stopAll(); syncSegs(); renderKeys(); renderJam(); renderNeck(); renderScales(); renderChords(); renderProgs(); renderCaged(); renderVoicings(); save(); }
 
 // ---------- Events --------------------------------------------------------
+const rekey = fn => keepJam(() => { fn(); state.neckRoot = null; if (state.scaleAuto) applySuggested(); renderAll(); });
 document.getElementById("keys").addEventListener("click", e => {
   const b = e.target.closest("button[data-pc]"); if (!b) return;
-  state.root = +b.dataset.pc; state.neckRoot = null; renderAll();
+  rekey(() => state.root = +b.dataset.pc);
 });
-const seg = (id, fn) => document.getElementById(id).addEventListener("click", () => { fn(); renderAll(); });
-seg("ton-major", () => { state.ton = "major"; state.neckRoot = null; if (state.scale === "minor") state.scale = "major"; });
-seg("ton-minor", () => { state.ton = "minor"; state.neckRoot = null; if (state.scale === "major") state.scale = "minor"; });
-seg("lab-notes", () => state.labels = "notes"); seg("lab-iv", () => state.labels = "iv");
-seg("pos-6", () => state.pos = "6"); seg("pos-5", () => state.pos = "5");
+document.getElementById("key-sel").addEventListener("change", e => rekey(() => state.root = +e.target.value));
+const seg = (id, fn) => document.getElementById(id).addEventListener("click", () => keepJam(() => { fn(); renderAll(); }));
+document.getElementById("ton-major").addEventListener("click", () => rekey(() => { state.ton = "major"; if (state.scale === "minor") state.scale = "major"; }));
+document.getElementById("ton-minor").addEventListener("click", () => rekey(() => { state.ton = "minor"; if (state.scale === "major") state.scale = "minor"; }));
 seg("sev-off", () => state.sev = false); seg("sev-on", () => state.sev = true);
-seg("st-ring", () => state.strum = "ring"); seg("st-quarter", () => state.strum = "quarter"); seg("st-pick", () => state.strum = "pick");
-seg("loop-off", () => state.loop = false); seg("loop-on", () => state.loop = true);
+// Jam controls change the music without stopping it; they take effect on the next chord.
+const soft = (id, fn, after) => document.getElementById(id).addEventListener("click", () => { fn(); syncSegs(); save(); if (after) after(); });
+soft("st-off", () => state.strum = "off"); soft("st-ring", () => state.strum = "ring"); soft("st-quarter", () => state.strum = "quarter"); soft("st-pick", () => state.strum = "pick");
+soft("loop-off", () => state.loop = false); soft("loop-on", () => state.loop = true);
+soft("bars-1", () => state.barsPer = 1); soft("bars-2", () => state.barsPer = 2);
+soft("cin-off", () => state.countIn = false); soft("cin-on", () => state.countIn = true);
+soft("tones-on", () => state.jamTones = true, paintTones); soft("tones-off", () => state.jamTones = false, paintTones);
+const reneck = () => { renderNeck(); renderCaged(); };
+soft("lab-notes", () => state.labels = "notes", reneck); soft("lab-iv", () => state.labels = "iv", reneck);
+soft("pos-6", () => state.pos = "6", reneck); soft("pos-5", () => state.pos = "5", reneck);
+
+document.getElementById("jam-go").addEventListener("click", jamToggle);
+document.getElementById("jam-top").addEventListener("click", jamToggle);
+document.getElementById("jam-prog").addEventListener("change", e => {
+  const was = playing === "jam", v = e.target.value;
+  loadJam(v === "custom" ? "custom" : +v);
+  if (was) jamPlay();
+});
+document.getElementById("jam-scale").addEventListener("change", e => {
+  softStop();
+  const v = e.target.value, S = jamSource();
+  const sug = S.scRoot === state.root ? S.scale : `rel:${S.scale}:${S.scRoot}`;
+  if (v.startsWith("rel:")) { const [, id, r] = v.split(":"); selectScale(id, +r, v === sug); }
+  else selectScale(v, null, v === sug);
+  markCards();
+});
+document.getElementById("jam-drums").addEventListener("change", e => {
+  state.jamDrums = e.target.value; save();
+  if (playing === "jam") {
+    if (state.jamDrums === "off" && jamOwnsDrums) { jamOwnsDrums = false; drumsStop(); }
+    jamPlay();
+  }
+});
+document.getElementById("jam-vol").addEventListener("input", e => {
+  state.gtrVol = +e.target.value; document.getElementById("jam-vol-out").textContent = Math.round(state.gtrVol * 100) + "%";
+  if (out) out.gain.setTargetAtTime(state.gtrVol, actx.currentTime, 0.02); save();
+});
+document.getElementById("jam-chords").addEventListener("click", e => {
+  const rm = e.target.closest("[data-jrm]");
+  if (rm) { state.custom.splice(+rm.dataset.jrm, 1); save(); renderJam(); return; }
+  const c = e.target.closest(".pc"); if (!c) return;
+  const ch = jamSource().chords[+c.dataset.i]; if (!ch) return;
+  if (playing !== "jam") { playChordOnce(ch); c.classList.add("on"); setTimeout(() => c.classList.remove("on"), 600); }
+});
+document.getElementById("jam-add").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.addrClear) { state.custom = []; save(); renderJam(); return; }
+  if (b.dataset.addr) { addCustom(b.dataset.addr); ensureAudio(); const ch = parseRoman(keyContext(), b.dataset.addr); if (playing !== "jam") strum(ch.frets, actx.currentTime + 0.03, 0.8); }
+});
 
 document.getElementById("neck-play").addEventListener("click", e => playBox(state.scale, e.currentTarget));
 document.getElementById("neck-play").dataset.label = "Play the box";
@@ -1112,8 +1389,8 @@ document.getElementById("neck").addEventListener("click", e => {
   pluck(s, f, actx.currentTime + 0.01, 0.9);
   g.classList.add("on"); setTimeout(() => g.classList.remove("on"), 400);
 });
-function selectScale(id, nr = null) {
-  state.scale = id; state.neckRoot = nr; save(); renderNeck();
+function selectScale(id, nr = null, auto = false) {
+  state.scale = id; state.neckRoot = nr; state.scaleAuto = auto; save(); renderNeck();
   document.querySelectorAll(".card[data-scale]").forEach(c => c.setAttribute("aria-current", nr === null && c.dataset.scale === id));
 }
 document.getElementById("scale-groups").addEventListener("click", e => {
@@ -1121,32 +1398,29 @@ document.getElementById("scale-groups").addEventListener("click", e => {
   const card = e.target.closest(".card[data-scale]"); if (!card) return;
   if (play) {
     const wasPlaying = playing === "scale:" + play.dataset.play;
-    if (state.scale !== play.dataset.play || state.neckRoot !== null) { stopAll(); selectScale(play.dataset.play); }
+    if (state.scale !== play.dataset.play || state.neckRoot !== null) { softStop(); selectScale(play.dataset.play); }
     if (wasPlaying) { stopAll(); return; }
     playBox(play.dataset.play, play);
     return;
   }
-  if (state.scale !== card.dataset.scale || state.neckRoot !== null) { stopAll(); selectScale(card.dataset.scale); }
+  if (state.scale !== card.dataset.scale || state.neckRoot !== null) { softStop(); selectScale(card.dataset.scale); }
 });
 document.getElementById("scale-groups").addEventListener("keydown", e => {
-  if ((e.key === "Enter" || e.key === " ") && e.target.matches(".card")) { e.preventDefault(); stopAll(); selectScale(e.target.dataset.scale); }
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches(".card")) { e.preventDefault(); softStop(); selectScale(e.target.dataset.scale); }
 });
 document.getElementById("chords").addEventListener("click", e => {
+  const add = e.target.closest("[data-add]");
+  if (add) {
+    if (addCustom(renderChords.list[+add.dataset.add].roman)) { add.textContent = "Added ✓"; setTimeout(() => add.textContent = "+ Add", 900); }
+    return;
+  }
   const b = e.target.closest("[data-chord]"); if (!b) return;
   playChordOnce(renderChords.list[+b.dataset.chord]);
-  b.classList.add("on"); setTimeout(() => b.classList.remove("on"), 600);
+  const w = b.closest(".chord"); w.classList.add("on"); setTimeout(() => w.classList.remove("on"), 600);
 });
 document.getElementById("progs").addEventListener("click", e => {
   const p = e.target.closest("[data-prog]");
-  if (p) { playProg(+p.dataset.prog, p); return; }
-  const solo = e.target.closest("[data-solo]");
-  if (solo) {
-    stopAll();
-    const r = +solo.dataset.soloRoot;
-    selectScale(solo.dataset.solo, r === state.root ? null : r);
-    document.querySelector(".neck-panel").scrollIntoView({ behavior: "smooth", block: "start" });
-    return;
-  }
+  if (p) { playProg(+p.dataset.prog); return; }
   const pc = e.target.closest("[data-pchord]");
   if (pc) {
     const [pi, ci] = pc.dataset.pchord.split(":").map(Number);
@@ -1296,7 +1570,7 @@ function renderFinder() {
   document.getElementById("fd-guess").innerHTML = !guesses.length
     ? `<span class="empty">Waiting for chords.</span>`
     : guesses.map((g, i) => `<div class="keyguess${i ? " small" : " top"}">
-        <div class="card-top"><span class="kn">${g.k.name}</span>${i === 0 ? `<button type="button" class="ghost" data-key="${g.k.pc}:${g.k.ton}">Use this key</button>` : ""}</div>
+        <div class="card-top"><span class="kn">${g.k.name}</span>${i === 0 ? `<button type="button" class="play" data-key="${g.k.pc}:${g.k.ton}" data-jam="1">Jam with these chords</button>` : ""}</div>
         <div class="roman">${list.map(c => romanIn(g.k, c)).join(" · ")}</div>
         <div class="why">${g.inKey} of ${list.length} chord${list.length > 1 ? "s" : ""} in the key${g.inKey < list.length ? ", the rest borrowed or outside" : ""}.${i === 0 && guesses[1] && guesses[1].inKey === g.inKey ? " These chords fit the keys below just as well. This one wins because your progression starts or ends on its home chord." : ""}</div>
       </div>`).join("");
@@ -1341,9 +1615,19 @@ document.querySelector(".finder").addEventListener("click", e => {
   const k = e.target.closest("[data-key]");
   if (k) {
     const [pc, ton] = k.dataset.key.split(":");
+    stopAll();
     state.root = +pc; state.ton = ton; state.neckRoot = null; state.scale = ton === "major" ? "major" : "minor";
+    if (k.dataset.jam) {
+      const key = KEYS.find(x => x.pc === +pc && x.ton === ton);
+      const toks = state.mine.map(identify).filter(c => c && c.t).map(c => {
+        const m = romanIn(key, c).replace("♯", "#").match(/^(♭|#)?(VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i)(°|ø)?(maj7|7)?/);
+        return m ? m[0] : null;
+      }).filter(t => t && ROMAN_RE.test(t));
+      if (toks.length) { state.custom = toks; state.jam = "custom"; state.scaleAuto = true; }
+    }
+    if (state.scaleAuto) applySuggested();
     renderAll(); renderFinder();
-    document.querySelector(".controls").scrollIntoView({ behavior: "smooth", block: "start" });
+    location.hash = "atlas"; setView("main"); window.scrollTo(0, 0);
   }
 });
 
@@ -1815,7 +2099,7 @@ document.getElementById("voicings").addEventListener("click", e => {
   const b = e.target.closest("button");
   if (b && b.dataset.vsend !== undefined) {
     state.finder = [...renderVoicings.list[+b.dataset.vsend].frets]; renderFinder();
-    document.getElementById("finder").scrollIntoView({ behavior: "smooth", block: "start" }); return;
+    location.hash = "finder"; setView("finder"); window.scrollTo(0, 0); return;
   }
   if (b && b.dataset.vr !== undefined) { state.vRoot = +b.dataset.vr; save(); renderVoicings(); return; }
   if (b && b.dataset.vt !== undefined) { state.vType = b.dataset.vt; save(); renderVoicings(); return; }
@@ -1946,15 +2230,29 @@ function setTempo(v) {
   ["tempo", "dr-tempo"].forEach(id => document.getElementById(id).value = v);
   ["tempo-out", "dr-tempo-out"].forEach(id => document.getElementById(id).textContent = v + " bpm");
   save();
+  if (playing === "jam") { clearTimeout(tempoT); tempoT = setTimeout(() => { if (playing === "jam") jamPlay(); }, 300); }
 }
 document.getElementById("dr-tempo").addEventListener("input", e => setTempo(+e.target.value));
 document.getElementById("tempo").addEventListener("input", e => setTempo(+e.target.value));
 
 
+function setView(v) {
+  const f = v === "finder";
+  document.querySelectorAll(".v-main").forEach(el => el.hidden = f);
+  document.querySelectorAll(".v-finder").forEach(el => el.hidden = !f);
+  document.getElementById("tab-main").setAttribute("aria-pressed", !f);
+  document.getElementById("tab-finder").setAttribute("aria-pressed", f);
+}
+document.getElementById("tab-main").addEventListener("click", () => { location.hash = "atlas"; setView("main"); });
+document.getElementById("tab-finder").addEventListener("click", () => { location.hash = "finder"; setView("finder"); });
+window.addEventListener("hashchange", () => setView(location.hash === "#finder" ? "finder" : "main"));
+
 applySkin();
 renderDrums();
+if (state.scaleAuto) applySuggested();
 renderAll();
 renderFinder();
+setView(location.hash === "#finder" ? "finder" : "main");
 </script>
 
 </body></html>
